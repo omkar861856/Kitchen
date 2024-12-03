@@ -10,6 +10,7 @@ import './MenuManagement.css';
 import { deleteInventoryItem } from '../store/slices/menuSlice';
 import { updateInventoryItem } from '../store/slices/menuSlice';
 import { InventoryItem } from '../store/slices/menuSlice';
+import { apiUrl } from '../Layout';
 
 // Menu Management Component
 const MenuManagement = () => {
@@ -97,7 +98,7 @@ const MenuManagement = () => {
             formData.append('availability', 'true');
 
             try {
-                const response = await axios.post('http://localhost:3000/inventory', formData, {
+                const response = await axios.post(`${apiUrl}/inventory`, formData, {
                     headers: { 'Content-Type': 'multipart/form-data' },
                 });
                 if (response.data) {
@@ -128,7 +129,7 @@ const MenuManagement = () => {
             formData.append('availability', 'true');
             console.log(formData)
             try {
-                const response = await axios.post(`http://localhost:3000/inventory/${itemIdToUpdate}`, formData, {
+                const response = await axios.post(`${apiUrl}/inventory/${itemIdToUpdate}`, formData, {
                     headers: { 'Content-Type': 'multipart/form-data' },
                 });
                 if (response.data) {
@@ -165,7 +166,7 @@ const MenuManagement = () => {
             image: item.image,
         });
 
-        setImagePreview(`http://localhost:3000/inventory/${item.itemId}`)
+        setImagePreview(`${apiUrl}/inventory/${item.itemId}`)
     };
 
     const handleDelete = (itemId: string) => {
@@ -315,7 +316,7 @@ function MenuI({ item,setItemIdToUpdate, handleEdit, handleDelete }) {
         <Card sx={{ marginBottom: '20px', boxShadow: 3, borderRadius: 2 }}>
             <CardContent sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <img
-                    src={`http://localhost:3000/inventory/${item.itemId}`}
+                    src={`${apiUrl}/inventory/${item.itemId}`}
                     alt={item.name}
                     style={{
                         width: '150px',

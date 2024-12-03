@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
+import { apiUrl } from '../../Layout';
 
 // Define interfaces for orders and their statuses
 export interface Order {
@@ -30,7 +31,7 @@ export const fetchOrders = createAsyncThunk(
     'orders/fetchAll',
     async () => {
         try {
-            const response = await axios.get(`http://localhost:3000/orders`);
+            const response = await axios.get(`${apiUrl}/orders`);
             return response.data; // Assuming the response contains the orders in the "orders" field
         } catch (error) {
             throw Error('Failed to fetch orders');
@@ -43,7 +44,7 @@ export const fetchOrdersByUserId = createAsyncThunk(
   'orders/fetchByUserId',
   async (userId: string) => {
       try {
-          const response = await axios.get(`http://localhost:3000/orders?userId=${userId}`);
+          const response = await axios.get(`${apiUrl}/orders?userId=${userId}`);
           return response.data.orders; // Assuming the response contains the orders in the "orders" field
       } catch (error) {
           throw Error('Failed to fetch orders');
@@ -56,7 +57,7 @@ export const updateOrderStatus = createAsyncThunk(
     'orders/updateStatus',
     async ({ orderId, status }: { orderId: string; status: string }) => {
         try {
-            const response = await axios.put(`http://localhost:3000/order/${orderId}`, { status });
+            const response = await axios.put(`${apiUrl}/order/${orderId}`, { status });
             return response.data.updatedOrder; // Assuming the updated order is returned
         } catch (error) {
             throw Error('Failed to update order status');

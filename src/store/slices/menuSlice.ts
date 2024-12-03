@@ -1,5 +1,6 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
+import { apiUrl } from '../../Layout';
 
 export interface InventoryItem {
     itemId: string;
@@ -20,7 +21,7 @@ const initialState: InventoryItem[] = [];
 
 // Fetch all inventory items
 export const fetchInventory = createAsyncThunk('menu/fetchAll', async () => {
-    const response = await axios.get('http://localhost:3000/inventory');
+    const response = await axios.get(`${apiUrl}/inventory`);
     return response.data.updatedItems; 
 });
 
@@ -28,7 +29,7 @@ export const fetchInventory = createAsyncThunk('menu/fetchAll', async () => {
 export const fetchInventoryItem = createAsyncThunk(
     'menu/fetchItem',
     async (itemId: string) => {
-        const response = await axios.get(`http://localhost:3000/inventory/${itemId}`);
+        const response = await axios.get(`${apiUrl}/inventory/${itemId}`);
         return response.data.item; // Assuming `item` is returned from your API
     }
 );
@@ -37,7 +38,7 @@ export const fetchInventoryItem = createAsyncThunk(
 export const createInventoryItem = createAsyncThunk(
     'menu/createItem',
     async (item: Partial<InventoryItem>) => {
-        const response = await axios.post('http://localhost:3000/inventory', item);
+        const response = await axios.post(`${apiUrl}/inventory`, item);
         return response.data.item; // Assuming `item` is returned from your API
     }
 );
@@ -47,7 +48,7 @@ export const updateInventoryItem = createAsyncThunk(
     'menu/updateItem',
     async ({ itemId, updates }: { itemId: string; updates: Partial<InventoryItem> }) => {
         console.log(updates)
-        const response = await axios.put(`http://localhost:3000/inventory/${itemId}`, updates);
+        const response = await axios.put(`${apiUrl}/inventory/${itemId}`, updates);
         console.log(response)
         return response.data.item; // Assuming `item` is returned from your API
     }
@@ -57,7 +58,7 @@ export const updateInventoryItem = createAsyncThunk(
 export const deleteInventoryItem = createAsyncThunk(
     'menu/deleteItem',
     async (itemId: string) => {
-        await axios.delete(`http://localhost:3000/inventory/${itemId}`);
+        await axios.delete(`${apiUrl}/inventory/${itemId}`);
         return itemId; // Returning the deleted item's ID
     }
 );
@@ -66,7 +67,7 @@ export const deleteInventoryItem = createAsyncThunk(
 export const updateInventoryQuantity = createAsyncThunk(
     'menu/updateQuantity',
     async ({ itemId, quantityChange }: { itemId: string; quantityChange: number }) => {
-        const response = await axios.patch(`http://localhost:3000/inventory/${itemId}/quantity`, { quantityChange });
+        const response = await axios.patch(`${apiUrl}/inventory/${itemId}/quantity`, { quantityChange });
         return response.data.item; // Assuming `item` is returned from your API
     }
 );

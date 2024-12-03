@@ -19,7 +19,12 @@ import NotificationImportantIcon from '@mui/icons-material/NotificationImportant
 import { useAppSelector } from './store/hooks/hooks';
 
 
-export const socket = io('http://localhost:3000');
+// backend url link 
+
+export const apiUrl = import.meta.env.VITE_API_URL;
+
+
+export const socket = io(apiUrl);
 
 
 const notificationSound = new Audio('src/audios/simple-notification-152054.mp3')
