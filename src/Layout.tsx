@@ -105,7 +105,7 @@ export default function Layout({ children }) {
         >
           <BottomNavigationAction onClick={() => navigate("/")} label="Orders" icon={<RestaurantIcon />} />
           <BottomNavigationAction onClick={() => navigate("/menu")} label="Menu Mangement" icon={<MenuBookIcon />} />
-          <BottomNavigationAction onClick={() => navigate("/settings")} label="Staff and settings" icon={<SettingsAccessibilityIcon />} />
+          {/* <BottomNavigationAction onClick={() => navigate("/settings")} label="Staff and settings" icon={<SettingsAccessibilityIcon />} /> */}
           <BottomNavigationAction label="Profile" icon={<> <SignedOut>
             <SignInButton />
           </SignedOut>
