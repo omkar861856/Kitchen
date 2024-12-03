@@ -1,0 +1,16 @@
+.menu-item{
+    display: grid;
+    grid-template-columns: auto 1fr auto auto;
+    place-items: center;
+    gap: 10px;
+}
+
+.menu-item-image{
+    width: 100px;
+    height: 100px;
+}
+
+button{
+    width: 80%;
+    height: 50%;
+}

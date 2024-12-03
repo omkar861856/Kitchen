@@ -1,0 +1,113 @@
+import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import axios from 'axios';
+
+export interface InventoryItem {
+    itemId: string;
+    name: string;
+    category: string;
+    price: number;
+    quantityAvailable: number;
+    availability: boolean;
+    image?: File | null,
+    createdAt: string;
+    updatedAt: string;
+}
+
+// Initial state: array of inventory items
+const initialState: InventoryItem[] = [];
+
+// Async thunks for inventory operations
+
+// Fetch all inventory items
+export const fetchInventory = createAsyncThunk('menu/fetchAll', async () => {
+    const response = await axios.get('http://localhost:3000/inventory');
+    return response.data.updatedItems; 
+});
+
+// Fetch specific inventory item by itemId
+export const fetchInventoryItem = createAsyncThunk(
+    'menu/fetchItem',
+    async (itemId: string) => {
+        const response = await axios.get(`http://localhost:3000/inventory/${itemId}`);
+        return response.data.item; // Assuming `item` is returned from your API
+    }
+);
+
+// Create a new inventory item
+export const createInventoryItem = createAsyncThunk(
+    'menu/createItem',
+    async (item: Partial<InventoryItem>) => {
+        const response = await axios.post('http://localhost:3000/inventory', item);
+        return response.data.item; // Assuming `item` is returned from your API
+    }
+);
+
+// Update an inventory item by itemId
+export const updateInventoryItem = createAsyncThunk(
+    'menu/updateItem',
+    async ({ itemId, updates }: { itemId: string; updates: Partial<InventoryItem> }) => {
+        console.log(updates)
+        const response = await axios.put(`http://localhost:3000/inventory/${itemId}`, updates);
+        console.log(response)
+        return response.data.item; // Assuming `item` is returned from your API
+    }
+);
+
+// Delete an inventory item by itemId
+export const deleteInventoryItem = createAsyncThunk(
+    'menu/deleteItem',
+    async (itemId: string) => {
+        await axios.delete(`http://localhost:3000/inventory/${itemId}`);
+        return itemId; // Returning the deleted item's ID
+    }
+);
+
+// Update inventory quantity by itemId
+export const updateInventoryQuantity = createAsyncThunk(
+    'menu/updateQuantity',
+    async ({ itemId, quantityChange }: { itemId: string; quantityChange: number }) => {
+        const response = await axios.patch(`http://localhost:3000/inventory/${itemId}/quantity`, { quantityChange });
+        return response.data.item; // Assuming `item` is returned from your API
+    }
+);
+
+// Redux slice
+const menuSlice = createSlice({
+    name: 'menu',
+    initialState,
+    reducers: {},
+    extraReducers: (builder) => {
+        builder
+            .addCase(fetchInventory.fulfilled, (state, action: PayloadAction<InventoryItem[]>) => {
+                return action.payload;
+            })
+            .addCase(fetchInventoryItem.fulfilled, (state, action: PayloadAction<InventoryItem>) => {
+                const index = state.findIndex((item) => item.itemId === action.payload.itemId);
+                if (index !== -1) {
+                    state[index] = action.payload;
+                } else {
+                    state.push(action.payload);
+                }
+            })
+            .addCase(createInventoryItem.fulfilled, (state, action: PayloadAction<InventoryItem>) => {
+                state.push(action.payload);
+            })
+            .addCase(updateInventoryItem.fulfilled, (state, action: PayloadAction<InventoryItem>) => {
+                const index = state.findIndex((item) => item.itemId === action.payload.itemId);
+                if (index !== -1) {
+                    state[index] = action.payload;
+                }
+            })
+            .addCase(deleteInventoryItem.fulfilled, (state, action: PayloadAction<string>) => {
+                return state.filter((item) => item.itemId !== action.payload);
+            })
+            .addCase(updateInventoryQuantity.fulfilled, (state, action: PayloadAction<InventoryItem>) => {
+                const index = state.findIndex((item) => item.itemId === action.payload.itemId);
+                if (index !== -1) {
+                    state[index] = action.payload;
+                }
+            });
+    },
+});
+
+export default menuSlice.reducer;
