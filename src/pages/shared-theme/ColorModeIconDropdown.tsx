@@ -11,16 +11,20 @@ export default function ColorModeIconDropdown(props: IconButtonOwnProps) {
   const { mode, systemMode, setMode } = useColorScheme();
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const open = Boolean(anchorEl);
+
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
   };
+
   const handleClose = () => {
     setAnchorEl(null);
   };
+
   const handleMode = (targetMode: 'system' | 'light' | 'dark') => () => {
     setMode(targetMode);
     handleClose();
   };
+
   if (!mode) {
     return (
       <Box
@@ -30,18 +34,20 @@ export default function ColorModeIconDropdown(props: IconButtonOwnProps) {
           display: 'inline-flex',
           width: '2.25rem',
           height: '2.25rem',
-          borderRadius: (theme.vars || theme).shape.borderRadius,
+          borderRadius: theme.shape.borderRadius,  // Using theme.shape for borderRadius
           border: '1px solid',
-          borderColor: (theme.vars || theme).palette.divider,
+          borderColor: theme.palette.divider,  // Using theme.palette for border color
         })}
       />
     );
   }
+
   const resolvedMode = (systemMode || mode) as 'light' | 'dark';
   const icon = {
     light: <LightModeIcon />,
     dark: <DarkModeIcon />,
   }[resolvedMode];
+
   return (
     <React.Fragment>
       <IconButton

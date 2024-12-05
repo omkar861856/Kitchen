@@ -10,7 +10,7 @@ export interface InventoryItem {
     quantityAvailable: number;
     availability: boolean;
     preparationTime: number;
-    image?: File | null | undefined,
+    image: string,
     createdAt: string;
     updatedAt: string;
 }

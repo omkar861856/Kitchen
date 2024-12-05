@@ -7,6 +7,7 @@ import axios from 'axios';
 import { Typography, TextField, Button, Grid, Box, Card, CardContent, FormControl, InputLabel, Select, MenuItem } from '@mui/material';
 import './MenuManagement.css';
 import { apiUrl } from '../Layout';
+import { SelectChangeEvent } from '@mui/material';
 
 // Define the FormValues interface
 interface FormValues {
@@ -78,11 +79,18 @@ const MenuManagement = () => {
     return Object.keys(newErrors).length === 0;
   };
 
-  // Handle input and select change
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+// Handle input and select change
+const handleInputChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement> | SelectChangeEvent<string>
+  ) => {
     const { name, value } = e.target;
-    setFormValues(prev => ({ ...prev, [name]: value }));
+  
+    // If the event is a SelectChangeEvent, it will be an instance of SelectChangeEvent
+    if ('value' in e.target) {
+      setFormValues(prev => ({ ...prev, [name]: value }));
+    }
   };
+  
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -204,7 +212,7 @@ const MenuManagement = () => {
               fullWidth
               name="name"
               value={formValues.name}
-              onChange={handleInputChange}
+              onChange={(e)=>handleInputChange(e)}
               error={!!errors.name}
               helperText={errors.name}
             />
@@ -215,7 +223,7 @@ const MenuManagement = () => {
               <Select
                 name="category"
                 value={formValues.category}
-                onChange={handleInputChange}
+                onChange={(e)=>handleInputChange(e)}
                 label="Category"
               >
                 <MenuItem value="">Select Category</MenuItem>
@@ -237,7 +245,6 @@ const MenuManagement = () => {
               error={!!errors.price}
               helperText={errors.price}
               type="number"
-              min="0"
             />
           </Grid>
           <Grid item xs={12} sm={6}>
@@ -251,7 +258,6 @@ const MenuManagement = () => {
               error={!!errors.quantityAvailable}
               helperText={errors.quantityAvailable}
               type="number"
-              min="0"
             />
           </Grid>
 
@@ -266,7 +272,6 @@ const MenuManagement = () => {
               error={!!errors.preparationTime}
               helperText={errors.preparationTime}
               type="number"
-              min="1"
             />
           </Grid>
 
