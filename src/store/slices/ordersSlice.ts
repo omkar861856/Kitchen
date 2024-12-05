@@ -1,21 +1,27 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { apiUrl } from '../../Layout';
+import { InventoryItem } from './menuSlice';
 
 // Define interfaces for orders and their statuses
 export interface Order {
     orderId: string;
     userId: string;
+    items: InventoryItem[];
     status: 'pending' | 'completed' | 'cancelled';
     createdAt: string;
     updatedAt: string;
+    deliveryTime: string;
+    totalPrice?:number;
+    orderedAt?:string | undefined;
+    completedAt?:string | undefined;
 }
 
 interface OrdersState {
     orders: Order[];
     pendingOrders: Order[];
     loading: boolean;
-    error: string | null;
+    error: string | null | undefined;
 }
 
 // Initial state for orders

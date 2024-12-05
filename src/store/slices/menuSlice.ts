@@ -9,7 +9,8 @@ export interface InventoryItem {
     price: number;
     quantityAvailable: number;
     availability: boolean;
-    image?: File | null,
+    preparationTime: number;
+    image?: File | null | undefined,
     createdAt: string;
     updatedAt: string;
 }
@@ -79,7 +80,7 @@ const menuSlice = createSlice({
     reducers: {},
     extraReducers: (builder) => {
         builder
-            .addCase(fetchInventory.fulfilled, (state, action: PayloadAction<InventoryItem[]>) => {
+            .addCase(fetchInventory.fulfilled, (_, action: PayloadAction<InventoryItem[]>) => {
                 return action.payload;
             })
             .addCase(fetchInventoryItem.fulfilled, (state, action: PayloadAction<InventoryItem>) => {

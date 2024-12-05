@@ -12,9 +12,9 @@ export const surfacesCustomizations: Components<Theme> = {
       root: ({ theme }) => ({
         padding: 4,
         overflow: 'clip',
-        backgroundColor: (theme.vars || theme).palette.background.default,
+        backgroundColor: theme.palette.background.default, // Use theme.palette instead of theme.vars
         border: '1px solid',
-        borderColor: (theme.vars || theme).palette.divider,
+        borderColor: theme.palette.divider, // Use theme.palette instead of theme.vars
         ':before': {
           backgroundColor: 'transparent',
         },
@@ -22,12 +22,12 @@ export const surfacesCustomizations: Components<Theme> = {
           borderBottom: 'none',
         },
         '&:first-of-type': {
-          borderTopLeftRadius: (theme.vars || theme).shape.borderRadius,
-          borderTopRightRadius: (theme.vars || theme).shape.borderRadius,
+          borderTopLeftRadius: theme.shape.borderRadius, // Use theme.shape instead of theme.vars
+          borderTopRightRadius: theme.shape.borderRadius, // Use theme.shape instead of theme.vars
         },
         '&:last-of-type': {
-          borderBottomLeftRadius: (theme.vars || theme).shape.borderRadius,
-          borderBottomRightRadius: (theme.vars || theme).shape.borderRadius,
+          borderBottomLeftRadius: theme.shape.borderRadius, // Use theme.shape instead of theme.vars
+          borderBottomRightRadius: theme.shape.borderRadius, // Use theme.shape instead of theme.vars
         },
       }),
     },
@@ -63,8 +63,8 @@ export const surfacesCustomizations: Components<Theme> = {
           gap: 16,
           transition: 'all 100ms ease',
           backgroundColor: gray[50],
-          borderRadius: (theme.vars || theme).shape.borderRadius,
-          border: `1px solid ${(theme.vars || theme).palette.divider}`,
+          borderRadius: theme.shape.borderRadius, // Use theme.shape instead of theme.vars
+          border: `1px solid ${theme.palette.divider}`, // Use theme.palette instead of theme.vars
           boxShadow: 'none',
           ...theme.applyStyles('dark', {
             backgroundColor: gray[800],
@@ -75,7 +75,7 @@ export const surfacesCustomizations: Components<Theme> = {
                 variant: 'outlined',
               },
               style: {
-                border: `1px solid ${(theme.vars || theme).palette.divider}`,
+                border: `1px solid ${theme.palette.divider}`, // Use theme.palette instead of theme.vars
                 boxShadow: 'none',
                 background: 'hsl(0, 0%, 100%)',
                 ...theme.applyStyles('dark', {

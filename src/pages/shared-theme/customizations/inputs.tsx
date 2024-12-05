@@ -1,4 +1,3 @@
-import * as React from 'react';
 import { alpha, Theme, Components } from '@mui/material/styles';
 import { outlinedInputClasses } from '@mui/material/OutlinedInput';
 import { svgIconClasses } from '@mui/material/SvgIcon';
@@ -9,7 +8,6 @@ import CheckRoundedIcon from '@mui/icons-material/CheckRounded';
 import RemoveRoundedIcon from '@mui/icons-material/RemoveRounded';
 import { gray, brand } from '../themePrimitives';
 
-/* eslint-disable import/prefer-default-export */
 export const inputsCustomizations: Components<Theme> = {
   MuiButtonBase: {
     defaultProps: {
@@ -31,22 +29,18 @@ export const inputsCustomizations: Components<Theme> = {
     styleOverrides: {
       root: ({ theme }) => ({
         boxShadow: 'none',
-        borderRadius: (theme.vars || theme).shape.borderRadius,
+        borderRadius: theme.shape.borderRadius, // Correct access to shape.borderRadius
         textTransform: 'none',
         variants: [
           {
-            props: {
-              size: 'small',
-            },
+            props: { size: 'small' },
             style: {
               height: '2.25rem',
               padding: '8px 12px',
             },
           },
           {
-            props: {
-              size: 'medium',
-            },
+            props: { size: 'medium' },
             style: {
               height: '2.5rem', // 40px
             },
@@ -74,7 +68,7 @@ export const inputsCustomizations: Components<Theme> = {
                 color: 'black',
                 backgroundColor: gray[50],
                 backgroundImage: `linear-gradient(to bottom, ${gray[100]}, ${gray[50]})`,
-                boxShadow: 'inset 0 -1px 0  hsl(220, 30%, 80%)',
+                boxShadow: 'inset 0 -1px 0 hsl(220, 30%, 80%)',
                 border: `1px solid ${gray[50]}`,
                 '&:hover': {
                   backgroundImage: 'none',
@@ -88,10 +82,7 @@ export const inputsCustomizations: Components<Theme> = {
             },
           },
           {
-            props: {
-              color: 'secondary',
-              variant: 'contained',
-            },
+            props: { color: 'secondary', variant: 'contained' },
             style: {
               color: 'white',
               backgroundColor: brand[300],
@@ -109,11 +100,9 @@ export const inputsCustomizations: Components<Theme> = {
             },
           },
           {
-            props: {
-              variant: 'outlined',
-            },
+            props: { variant: 'outlined' },
             style: {
-              color: (theme.vars || theme).palette.text.primary,
+              color: theme.palette.text.primary, // Correct access to text.primary
               border: '1px solid',
               borderColor: gray[200],
               backgroundColor: alpha(gray[50], 0.3),
@@ -138,85 +127,6 @@ export const inputsCustomizations: Components<Theme> = {
               }),
             },
           },
-          {
-            props: {
-              color: 'secondary',
-              variant: 'outlined',
-            },
-            style: {
-              color: brand[700],
-              border: '1px solid',
-              borderColor: brand[200],
-              backgroundColor: brand[50],
-              '&:hover': {
-                backgroundColor: brand[100],
-                borderColor: brand[400],
-              },
-              '&:active': {
-                backgroundColor: alpha(brand[200], 0.7),
-              },
-              ...theme.applyStyles('dark', {
-                color: brand[50],
-                border: '1px solid',
-                borderColor: brand[900],
-                backgroundColor: alpha(brand[900], 0.3),
-                '&:hover': {
-                  borderColor: brand[700],
-                  backgroundColor: alpha(brand[900], 0.6),
-                },
-                '&:active': {
-                  backgroundColor: alpha(brand[900], 0.5),
-                },
-              }),
-            },
-          },
-          {
-            props: {
-              variant: 'text',
-            },
-            style: {
-              color: gray[600],
-              '&:hover': {
-                backgroundColor: gray[100],
-              },
-              '&:active': {
-                backgroundColor: gray[200],
-              },
-              ...theme.applyStyles('dark', {
-                color: gray[50],
-                '&:hover': {
-                  backgroundColor: gray[700],
-                },
-                '&:active': {
-                  backgroundColor: alpha(gray[700], 0.7),
-                },
-              }),
-            },
-          },
-          {
-            props: {
-              color: 'secondary',
-              variant: 'text',
-            },
-            style: {
-              color: brand[700],
-              '&:hover': {
-                backgroundColor: alpha(brand[100], 0.5),
-              },
-              '&:active': {
-                backgroundColor: alpha(brand[200], 0.7),
-              },
-              ...theme.applyStyles('dark', {
-                color: brand[100],
-                '&:hover': {
-                  backgroundColor: alpha(brand[900], 0.5),
-                },
-                '&:active': {
-                  backgroundColor: alpha(brand[900], 0.3),
-                },
-              }),
-            },
-          },
         ],
       }),
     },
@@ -225,11 +135,11 @@ export const inputsCustomizations: Components<Theme> = {
     styleOverrides: {
       root: ({ theme }) => ({
         boxShadow: 'none',
-        borderRadius: (theme.vars || theme).shape.borderRadius,
+        borderRadius: theme.shape.borderRadius, // Correct access to shape.borderRadius
         textTransform: 'none',
         fontWeight: theme.typography.fontWeightMedium,
         letterSpacing: 0,
-        color: (theme.vars || theme).palette.text.primary,
+        color: theme.palette.text.primary, // Correct access to text.primary
         border: '1px solid ',
         borderColor: gray[200],
         backgroundColor: alpha(gray[50], 0.3),
@@ -253,9 +163,7 @@ export const inputsCustomizations: Components<Theme> = {
         }),
         variants: [
           {
-            props: {
-              size: 'small',
-            },
+            props: { size: 'small' },
             style: {
               width: '2.25rem',
               height: '2.25rem',
@@ -264,9 +172,7 @@ export const inputsCustomizations: Components<Theme> = {
             },
           },
           {
-            props: {
-              size: 'medium',
-            },
+            props: { size: 'medium' },
             style: {
               width: '2.5rem',
               height: '2.5rem',
@@ -313,9 +219,7 @@ export const inputsCustomizations: Components<Theme> = {
   MuiCheckbox: {
     defaultProps: {
       disableRipple: true,
-      icon: (
-        <CheckBoxOutlineBlankRoundedIcon sx={{ color: 'hsla(210, 0%, 0%, 0.0)' }} />
-      ),
+      icon: <CheckBoxOutlineBlankRoundedIcon sx={{ color: 'hsla(210, 0%, 0%, 0.0)' }} />,
       checkedIcon: <CheckRoundedIcon sx={{ height: 14, width: 14 }} />,
       indeterminateIcon: <RemoveRoundedIcon sx={{ height: 14, width: 14 }} />,
     },
@@ -383,10 +287,10 @@ export const inputsCustomizations: Components<Theme> = {
       },
       root: ({ theme }) => ({
         padding: '8px 12px',
-        color: (theme.vars || theme).palette.text.primary,
-        borderRadius: (theme.vars || theme).shape.borderRadius,
-        border: `1px solid ${(theme.vars || theme).palette.divider}`,
-        backgroundColor: (theme.vars || theme).palette.background.default,
+        color: theme.palette.text.primary, // Correct access to text.primary
+        borderRadius: theme.shape.borderRadius, // Correct access to shape.borderRadius
+        border: `1px solid ${theme.palette.divider}`,
+        backgroundColor: theme.palette.background.default, // Correct access to background.default
         transition: 'border 120ms ease-in',
         '&:hover': {
           borderColor: gray[400],
@@ -402,17 +306,13 @@ export const inputsCustomizations: Components<Theme> = {
         }),
         variants: [
           {
-            props: {
-              size: 'small',
-            },
+            props: { size: 'small' },
             style: {
               height: '2.25rem',
             },
           },
           {
-            props: {
-              size: 'medium',
-            },
+            props: { size: 'medium' },
             style: {
               height: '2.5rem',
             },
@@ -427,9 +327,9 @@ export const inputsCustomizations: Components<Theme> = {
   MuiInputAdornment: {
     styleOverrides: {
       root: ({ theme }) => ({
-        color: (theme.vars || theme).palette.grey[500],
+        color: theme.palette.grey[500], // Correct access to palette.grey[500]
         ...theme.applyStyles('dark', {
-          color: (theme.vars || theme).palette.grey[400],
+          color: theme.palette.grey[400],
         }),
       }),
     },

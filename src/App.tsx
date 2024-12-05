@@ -1,4 +1,3 @@
-import React from 'react'
 import { Routes, Route } from 'react-router-dom'
 import MenuManagement from './pages/MenuManagement'
 import Orders from './pages/Orders'
