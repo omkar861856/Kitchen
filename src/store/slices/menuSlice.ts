@@ -13,6 +13,7 @@ export interface InventoryItem {
     image: string,
     createdAt: string;
     updatedAt: string;
+    quantity:number | string;
 }
 
 // Initial state: array of inventory items

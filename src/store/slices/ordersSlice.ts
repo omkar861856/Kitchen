@@ -13,7 +13,7 @@ export interface Order {
     updatedAt: string;
     deliveryTime: string;
     totalPrice?:number;
-    orderedAt?:string | undefined;
+    orderedAt?:string;
     completedAt?:string | undefined;
     totalPreparationTime: number ;
 }

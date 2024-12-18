@@ -54,8 +54,8 @@ const Orders = () => {
 
     if (sortField === "orderedAt") {
       orders.sort((a, b) => {
-        const dateA = new Date(a.orderedAt).getTime();
-        const dateB = new Date(b.orderedAt).getTime();
+        const dateA = new Date(a.orderedAt ?? "").getTime();
+        const dateB = new Date(b.orderedAt ?? "").getTime();
         return sortDirection === "asc" ? dateA - dateB : dateB - dateA;
       });
     } else if (sortField === "totalPreparationTime") {
@@ -116,7 +116,7 @@ const Orders = () => {
             <Autocomplete
               options={uniqueUserIds}
               value={selectedUserId}
-              onChange={(event, newValue) => setSelectedUserId(newValue || "")}
+              onChange={(_, newValue) => setSelectedUserId(newValue || "")}
               renderInput={(params) => (
                 <TextField {...params} label="Filter by User ID" variant="outlined" fullWidth />
               )}
