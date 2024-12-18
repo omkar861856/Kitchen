@@ -1,30 +1,40 @@
-import React, { useState, useEffect, useRef } from 'react';
-import Box from '@mui/material/Box';
-import CssBaseline from '@mui/material/CssBaseline';
-import BottomNavigation from '@mui/material/BottomNavigation';
-import BottomNavigationAction from '@mui/material/BottomNavigationAction';
-import MenuBookIcon from '@mui/icons-material/MenuBook';
-import RestaurantIcon from '@mui/icons-material/Restaurant';
-import Paper from '@mui/material/Paper';
-import ColorModeSelect from './pages/shared-theme/ColorModeSelect';
-import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/clerk-react';
-import { useNavigate } from 'react-router-dom';
-import { io } from 'socket.io-client';
-import { Snackbar, Menu, MenuItem, IconButton, Badge, Typography } from '@mui/material';
-import NotificationImportantIcon from '@mui/icons-material/NotificationImportant';
-import './Layout.css'
+import React, { useState, useEffect, useRef } from "react";
+import Box from "@mui/material/Box";
+import CssBaseline from "@mui/material/CssBaseline";
+import BottomNavigation from "@mui/material/BottomNavigation";
+import BottomNavigationAction from "@mui/material/BottomNavigationAction";
+import MenuBookIcon from "@mui/icons-material/MenuBook";
+import RestaurantIcon from "@mui/icons-material/Restaurant";
+import Paper from "@mui/material/Paper";
+import ColorModeSelect from "./pages/shared-theme/ColorModeSelect";
+import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/clerk-react";
+import { useNavigate } from "react-router-dom";
+import { io } from "socket.io-client";
+import {
+  Snackbar,
+  Menu,
+  MenuItem,
+  IconButton,
+  Badge,
+  Typography,
+} from "@mui/material";
+import NotificationImportantIcon from "@mui/icons-material/NotificationImportant";
+import "./Layout.css";
+import Marquee from "react-fast-marquee";
+import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
+import { useAppDispatch } from "./store/hooks/hooks";
+import { update } from "./store/slices/socketSlice";
 
-// backend url link
+// Backend URL link
 export const apiUrl = import.meta.env.VITE_API_URL;
+export const socket = io(import.meta.env.VITE_SOCKET_API_URL);
 
-export const socket = io(apiUrl);
+// const notificationSound = new Audio("src/audios/simple-notification-152054.mp3");
 
-const notificationSound = new Audio('src/audios/simple-notification-152054.mp3');
-
-// Play the sound when a notification arrives
-function playNotificationSound() {
-  notificationSound.play();
-}
+// Play notification sound
+// function playNotificationSound() {
+//   notificationSound.play();
+// }
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -34,71 +44,104 @@ export default function Layout({ children }: LayoutProps) {
   const [value, setValue] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-
-  // Show notification with sound
-  const showNotification = (message: string) => {
-    if (Notification.permission === 'granted') {
-      const notification = new Notification('New Notification', {
-        body: message,
-        icon: 'path_to_your_icon/notification-icon.png', // Optional icon
-      });
-
-      playNotificationSound(); // Play sound when notification appears
-
-      notification.onclick = () => {
-        console.log('Notification clicked!');
-      };
-    }
-  };
+  const dispatch = useAppDispatch();
+  const isInitialized = useRef(false); // Ensure one-time initialization
 
   useEffect(() => {
-    (ref.current as HTMLDivElement).ownerDocument.body.scrollTop = 0;
-    // Listen for server messages
-    socket.on('connect', () => {
-      console.log('Connected to server as Client 1');
+    // Ensure this block runs only once per session
+    if (!isInitialized.current) {
+      isInitialized.current = true;
 
-      // Send a message to the server
-      socket.emit('message', 'Hello from Client 1');
-    });
+      // Clear local storage only once during the session
+      if (!sessionStorage.getItem("localStorageCleared")) {
+        localStorage.clear();
+        sessionStorage.setItem("localStorageCleared", "true");
+        console.log("Local storage cleared once for this session.");
+      }
+    }
 
-    // Listen for broadcast messages
-    socket.on('message', (data) => {
-      console.log(`Client 1 received: ${data}`);
-    });
+    if (ref.current) {
+      ref.current.ownerDocument.body.scrollTop = 0;
+    }
 
-    // Request permission for notifications when the component mounts
-    if (Notification.permission !== 'denied') {
+    // Request notification permission
+    if (Notification.permission !== "denied") {
       Notification.requestPermission().then((permission) => {
-        if (permission === 'granted') {
-          console.log('Notification permission granted');
+        if (permission === "granted") {
+          console.log("Notification permission granted");
         }
       });
     }
-  }, [value]);
+
+    // Socket setup
+    socket.on("connect", () => {
+      console.log("Socket connected with ID:", socket.id);
+    });
+
+    socket.on("order-update-server", () => {
+      dispatch(update());
+    });
+
+    // Cleanup on unmount
+    return () => {
+      socket.off("connect");
+      socket.off("order-update-server");
+    };
+  }, [dispatch]);
 
   return (
-    <Box sx={{ pb: 7 }} ref={ref}>
+    <Box
+      sx={{
+        pb: 7,
+        maxWidth: "100%",
+        overflowX: "hidden",
+      }}
+      ref={ref}
+    >
       <CssBaseline />
-      <div id="setting-nav">
+      <div id="setting-nav" style={{ overflowX: "hidden" }}>
         <ColorModeSelect />
         <NotificationIconWithMenu />
       </div>
-      <div className="info-nav">
-        info here
-        <button onClick={() => showNotification('abc')}>show notification</button>
+      <div className="info-nav" style={{ maxWidth: "100%", overflowX: "hidden" }}>
+        <Marquee style={{ wordBreak: "break-word" }}>
+          Canteen will be closed on Sundays.
+        </Marquee>
       </div>
-      <div id="layout-children">{children}</div>
-      <Paper sx={{ position: 'fixed', bottom: 0, left: 0, right: 0 }} elevation={3}>
+      <div id="layout-children" style={{ overflowX: "hidden" }}>
+        {children}
+      </div>
+      <Paper
+        sx={{
+          position: "fixed",
+          bottom: 0,
+          left: 0,
+          right: 0,
+        }}
+        elevation={3}
+      >
         <BottomNavigation
           showLabels
           value={value}
-          onChange={(_, newValue: number) => { 
+          onChange={(_, newValue: number) => {
             setValue(newValue);
           }}
         >
-          <BottomNavigationAction onClick={() => navigate('/')} label="Orders" icon={<RestaurantIcon />} />
-          <BottomNavigationAction onClick={() => navigate('/menu')} label="Menu Mangement" icon={<MenuBookIcon />} />
-          {/* <BottomNavigationAction onClick={() => navigate("/settings")} label="Staff and settings" icon={<SettingsAccessibilityIcon />} /> */}
+          <BottomNavigationAction
+            onClick={() => navigate("/")}
+            label="Orders"
+            icon={<RestaurantIcon />}
+          />
+          <BottomNavigationAction
+            onClick={() => navigate("/menu")}
+            label="Menu Management"
+            icon={<MenuBookIcon />}
+          />
+          <BottomNavigationAction
+            onClick={() => navigate("/payments")}
+            label="Payments"
+            icon={<CurrencyRupeeIcon />}
+          />
           <BottomNavigationAction
             label="Profile"
             icon={
@@ -119,50 +162,43 @@ export default function Layout({ children }: LayoutProps) {
 }
 
 const NotificationIconWithMenu = () => {
-  // State management for the notification icon and menu
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const notifications = [
-    'New order received!',
-    'Payment failed!',
-    'Order shipped successfully!',
+    "New order received!",
+    "Payment failed!",
+    "Order shipped successfully!",
   ];
 
-  // Open and close the Menu
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget); // Open menu
+    setAnchorEl(event.currentTarget);
   };
 
   const handleClose = () => {
-    setAnchorEl(null); // Close menu
+    setAnchorEl(null);
   };
 
-  // Function to handle snackbar open
   const handleSnackbarOpen = () => {
     setOpenSnackbar(true);
   };
 
-  // Function to handle snackbar close
   const handleSnackbarClose = () => {
     setOpenSnackbar(false);
   };
 
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', padding: 2 }}>
-      {/* Notification Icon */}
+    <Box sx={{ display: "flex", alignItems: "center", padding: 2 }}>
       <IconButton onClick={handleClick} color="primary">
         <Badge badgeContent={notifications.length} color="error">
           <NotificationImportantIcon />
         </Badge>
       </IconButton>
-
-      {/* Menu for Notifications */}
       <Menu
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
         onClose={handleClose}
         PaperProps={{
-          style: { maxHeight: 200, width: '250px' },
+          style: { maxHeight: 200, width: "90%" },
         }}
       >
         {notifications.length > 0 ? (
@@ -177,8 +213,6 @@ const NotificationIconWithMenu = () => {
           </MenuItem>
         )}
       </Menu>
-
-      {/* Snackbar to show when a notification is clicked */}
       <Snackbar
         open={openSnackbar}
         onClose={handleSnackbarClose}

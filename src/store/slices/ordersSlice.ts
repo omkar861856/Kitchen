@@ -15,6 +15,7 @@ export interface Order {
     totalPrice?:number;
     orderedAt?:string | undefined;
     completedAt?:string | undefined;
+    totalPreparationTime: number ;
 }
 
 interface OrdersState {
@@ -63,7 +64,7 @@ export const updateOrderStatus = createAsyncThunk(
     'orders/updateStatus',
     async ({ orderId, status }: { orderId: string; status: string }) => {
         try {
-            const response = await axios.put(`${apiUrl}/order/${orderId}`, { status });
+            const response = await axios.put(`${apiUrl}/orders/${orderId}`, { status });
             return response.data.updatedOrder; // Assuming the updated order is returned
         } catch (error) {
             throw Error('Failed to update order status');

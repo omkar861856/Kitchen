@@ -4,6 +4,7 @@ import storage from 'redux-persist/lib/storage'; // Default storage (localStorag
 import menuReducer from './slices/menuSlice'
 import cartReducer from './slices/cartSlice'
 import orderReducer from './slices/ordersSlice'
+import socketReducer from './slices/socketSlice'
 
 // Example slice reducer
 import exampleReducer from './slices/exampleSlice';
@@ -14,13 +15,14 @@ const rootReducer = combineReducers({
   menu: menuReducer,
   cart: cartReducer,
   orders: orderReducer,
+  socket: socketReducer,
 });
 
 // Persist configuration
 const persistConfig = {
   key: 'root',
   storage,
-  whitelist: ['example', "menu", "cart", "orders"], // Reducers to persist
+  whitelist: [ "menu", "cart"], // Reducers to persist
 };
 
 // Persisted reducer
