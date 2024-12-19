@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { apiUrl } from '../../Layout';
+import { socket } from '../../Layout';
 
 export interface InventoryItem {
     itemId: string;
@@ -41,7 +42,7 @@ export const createInventoryItem = createAsyncThunk(
     'menu/createItem',
     async (item: Partial<InventoryItem>) => {
         const response = await axios.post(`${apiUrl}/inventory`, item);
-        return response.data.item; // Assuming `item` is returned from your API
+        return response.data.item;
     }
 );
 
@@ -61,6 +62,7 @@ export const deleteInventoryItem = createAsyncThunk(
     'menu/deleteItem',
     async (itemId: string) => {
         await axios.delete(`${apiUrl}/inventory/${itemId}`);
+        socket.emit('order-update', {room:'order', message:"A menu item deleted"});
         return itemId; // Returning the deleted item's ID
     }
 );

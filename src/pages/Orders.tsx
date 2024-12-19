@@ -24,7 +24,6 @@ import {
 } from "@mui/material";
 import { useAppSelector, useAppDispatch } from "../store/hooks/hooks";
 import { fetchOrders, updateOrderStatus } from "../store/slices/ordersSlice";
-import { socket } from "../Layout";
 import { Order } from "../store/slices/ordersSlice";
 
 const Orders = () => {
@@ -39,10 +38,8 @@ const Orders = () => {
   // Get unique user IDs from orders
   const uniqueUserIds = Array.from(new Set(pendingOrders.map((order) => order.userId)));
 
-
   useEffect(() => {
     dispatch(fetchOrders());
-    console.log(socketOrder)
   }, [socketOrder,dispatch]);
 
   useEffect(() => {
@@ -197,7 +194,6 @@ const OrderComponent = ({ order }: OrderProps) => {
     setOrderStatus("completed");
     setCompletionTime(0);
     dispatch(updateOrderStatus({ orderId, status: "completed" }));
-    socket.emit("order-update", "marking order as complete");
   };
 
   const formatDate = (date: string | undefined) => {

@@ -19,6 +19,8 @@ import {
 import { SelectChangeEvent } from "@mui/material";
 import "./MenuManagement.css";
 import { apiUrl } from "../Layout";
+import { socket } from "../Layout";
+
 
 interface FormValues {
   name: string;
@@ -147,6 +149,7 @@ const MenuManagement = () => {
         });
         if (response.data) {
           setUpdateComponent((state) => state + 1);
+          socket.emit("order-update", {room:"order", message:"A new item added to menu"})
           resetForm();
         }
       } catch (error) {
@@ -179,6 +182,8 @@ const MenuManagement = () => {
           );
           if (response.data) {
             setUpdateComponent((state) => state + 1);
+            socket.emit('order-update', {room:'order', message:"New menu item created"});
+
             resetForm();
           }
         } catch (error) {
@@ -353,7 +358,6 @@ const Menu = ({
 
   useEffect(() => {
     dispatch(fetchInventory());
-    console.log(inventory)
   }, [dispatch]);
 
   const categorizedInventory = inventory.reduce(

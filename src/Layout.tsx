@@ -22,12 +22,20 @@ import NotificationImportantIcon from "@mui/icons-material/NotificationImportant
 import "./Layout.css";
 import Marquee from "react-fast-marquee";
 import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
-import { useAppDispatch } from "./store/hooks/hooks";
+import { useAppDispatch, useAppSelector } from "./store/hooks/hooks";
 import { update } from "./store/slices/socketSlice";
+import { addNotification } from "./store/slices/notificationsSlice";
+import { clearNotifications } from "./store/slices/notificationsSlice";
 
-// Backend URL link
+
 export const apiUrl = import.meta.env.VITE_API_URL;
-export const socket = io(import.meta.env.VITE_SOCKET_API_URL);
+export const socket = io(import.meta.env.VITE_SOCKET_API_URL, {
+  reconnection: true, // Allow reconnections
+  reconnectionAttempts: 5, // Number of attempts before giving up
+  reconnectionDelay: 2000, // Delay between reconnection attempts
+});
+
+
 
 // const notificationSound = new Audio("src/audios/simple-notification-152054.mp3");
 
@@ -46,8 +54,13 @@ export default function Layout({ children }: LayoutProps) {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const isInitialized = useRef(false); // Ensure one-time initialization
+  const socketRef = useRef(socket);
+  const [socketConnection, setSocketConnection] = useState(false)
 
   useEffect(() => {
+
+    const socketInstance = socketRef.current;
+
     // Ensure this block runs only once per session
     if (!isInitialized.current) {
       isInitialized.current = true;
@@ -74,20 +87,37 @@ export default function Layout({ children }: LayoutProps) {
     }
 
     // Socket setup
-    socket.on("connect", () => {
+    socketInstance.on("connect", () => {
+      setSocketConnection(true)
       console.log("Socket connected with ID:", socket.id);
     });
 
-    socket.on("order-update-server", () => {
+    socketInstance.on("order-update-server", () => {
       dispatch(update());
     });
 
+    // Join specific rooms for notifications
+    socket.emit('joinRoom', 'menu');
+    socket.emit('joinRoom', 'order');
+    socket.emit('joinRoom', 'payment');
+
+    // Listen for notifications
+    socketInstance.on('notification', (data: String) => {
+      dispatch(addNotification(data));
+    });
+
+    socketInstance.on('disconnect', (reason) => {
+      console.log(`Disconnected: ${reason}`);
+    });
     // Cleanup on unmount
     return () => {
-      socket.off("connect");
-      socket.off("order-update-server");
+      setSocketConnection(false)
+      socketInstance.off("connect");
+      socketInstance.off("order-update-server");
+      socketInstance.off('notification');
     };
-  }, [dispatch]);
+  }, [dispatch, socketConnection]);
+
 
   return (
     <Box
@@ -161,14 +191,18 @@ export default function Layout({ children }: LayoutProps) {
   );
 }
 
+
 const NotificationIconWithMenu = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
-  const notifications = [
-    "New order received!",
-    "Payment failed!",
-    "Order shipped successfully!",
-  ];
+  const notificationss = useAppSelector(state => state.notifications)
+  const notifications = notificationss.notifications
+  const dispatch = useAppDispatch();
+
+  // const notifications = [
+  //   "New order received!",
+  //   "Payment failed!",
+  // ];
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -186,6 +220,14 @@ const NotificationIconWithMenu = () => {
     setOpenSnackbar(false);
   };
 
+  console.log("notifications length",notifications.length)
+
+  function handleClear() {
+
+    dispatch(clearNotifications())
+
+  }
+
   return (
     <Box sx={{ display: "flex", alignItems: "center", padding: 2 }}>
       <IconButton onClick={handleClick} color="primary">
@@ -201,13 +243,21 @@ const NotificationIconWithMenu = () => {
           style: { maxHeight: 200, width: "90%" },
         }}
       >
-        {notifications.length > 0 ? (
-          notifications.map((notification, index) => (
+        {notifications.length > 0 ? (<div>
+          <MenuItem onClick={handleClear}>
+            <Typography variant="body2">Clear all</Typography>
+          </MenuItem>
+
+          {notifications.map((notification, index) => (
             <MenuItem key={index} onClick={handleSnackbarOpen}>
               <Typography variant="body2">{notification}</Typography>
             </MenuItem>
-          ))
-        ) : (
+          ))}
+
+         
+
+
+        </div>) : (
           <MenuItem>
             <Typography variant="body2">No new notifications</Typography>
           </MenuItem>

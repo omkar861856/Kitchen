@@ -65,7 +65,7 @@ export const updateOrderStatus = createAsyncThunk(
     async ({ orderId, status }: { orderId: string; status: string }) => {
         try {
             const response = await axios.put(`${apiUrl}/orders/${orderId}`, { status });
-            return response.data.updatedOrder; // Assuming the updated order is returned
+            return response.data.order; // Assuming the updated order is returned
         } catch (error) {
             throw Error('Failed to update order status');
         }
@@ -98,7 +98,6 @@ const ordersSlice = createSlice({
             })
             // Handle successful update of order status
             .addCase(updateOrderStatus.fulfilled, (state, action: PayloadAction<Order>) => {
-              console.log(action.payload);  // Log to see if the payload is being received correctly
               if (action.payload) {
                 const index = state.orders.findIndex((order) => order.orderId === action.payload.orderId);
                 if (index !== -1) {

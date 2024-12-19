@@ -7,6 +7,7 @@ import orderReducer from './slices/ordersSlice'
 import socketReducer from './slices/socketSlice'
 
 import exampleReducer from './slices/exampleSlice';
+import notificationsReducer from './slices/notificationsSlice'
 
 const rootReducer = combineReducers({
   example: exampleReducer,
@@ -14,12 +15,13 @@ const rootReducer = combineReducers({
   cart: cartReducer,
   orders: orderReducer,
   socket: socketReducer,
+  notifications: notificationsReducer,
 });
 
 const persistConfig = {
   key: 'root',
   storage,
-  whitelist: [ "menu", "cart"], // Reducers to persist
+  whitelist: [ "menu", "cart", 'notifications'], // Reducers to persist
 };
 
 const persistedReducer = persistReducer(persistConfig, rootReducer);
