@@ -353,6 +353,7 @@ const Menu = ({
 
   useEffect(() => {
     dispatch(fetchInventory());
+    console.log(inventory)
   }, [dispatch]);
 
   const categorizedInventory = inventory.reduce(

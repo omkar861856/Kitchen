@@ -24,7 +24,7 @@ const initialState: InventoryItem[] = [];
 // Fetch all inventory items
 export const fetchInventory = createAsyncThunk('menu/fetchAll', async () => {
     const response = await axios.get(`${apiUrl}/inventory`);
-    return response.data.updatedItems; 
+    return response.data; 
 });
 
 // Fetch specific inventory item by itemId
