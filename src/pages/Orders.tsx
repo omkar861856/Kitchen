@@ -147,7 +147,6 @@ interface OrderProps {
 const OrderComponent = ({ order }: OrderProps) => {
   const {
     orderId,
-    userId,
     items,
     totalPrice,
     status,

@@ -401,8 +401,6 @@ const Menu = ({
 
 function MenuI({
   item,
-  setItemIdToUpdate,
-  handleEdit,
   handleDelete,
 }: {
   item: InventoryItem;
