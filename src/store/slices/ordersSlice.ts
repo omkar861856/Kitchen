@@ -7,6 +7,8 @@ import { InventoryItem } from './menuSlice';
 export interface Order {
     orderId: string;
     userId: string;
+    userPhoneNumber:string;
+    userFullName: string;
     items: InventoryItem[];
     status: 'pending' | 'completed' | 'cancelled';
     createdAt: string;
@@ -16,6 +18,9 @@ export interface Order {
     orderedAt?:string;
     completedAt?:string | undefined;
     totalPreparationTime: number ;
+    cabinName: string;
+    extraInfo: string;
+    specialInstructions: string;
 }
 
 interface OrdersState {

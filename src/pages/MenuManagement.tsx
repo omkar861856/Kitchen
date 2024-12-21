@@ -20,6 +20,7 @@ import { SelectChangeEvent } from "@mui/material";
 import "./MenuManagement.css";
 import { apiUrl } from "../Layout";
 import { socket } from "../Layout";
+import { useUser } from "@clerk/clerk-react";
 
 
 interface FormValues {
@@ -47,6 +48,9 @@ const MenuManagement = () => {
   const [imagePreview, setImagePreview] = useState<string>("");
   const [updateComponent, setUpdateComponent] = useState(0);
   const [itemIdToUpdate, setItemIdToUpdate] = useState<string>("");
+  const user = useUser()
+
+
 
   const initialFormValues: FormValues = {
     name: "",
@@ -142,14 +146,13 @@ const MenuManagement = () => {
       formData.append("createdAt", new Date().toISOString());
       formData.append("itemId", uuidv4());
       formData.append("availability", "true");
-
       try {
         const response = await axios.post(`${apiUrl}/inventory`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
         if (response.data) {
           setUpdateComponent((state) => state + 1);
-          socket.emit("order-update", {room:"order", message:"A new item added to menu"})
+          socket.emit("order-update", { room: "order", message: "A new item added to menu" })
           resetForm();
         }
       } catch (error) {
@@ -159,42 +162,49 @@ const MenuManagement = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    if (user.user?.primaryPhoneNumber == null) {
+      alert("please add your phone number in the profile section")
+    } else {
+      e.preventDefault();
 
-    if (editing) {
-      if (validateForm()) {
-        const formData = new FormData();
-        formData.append("name", formValues.name);
-        formData.append("category", formValues.category);
-        formData.append("price", formValues.price);
-        formData.append("quantityAvailable", formValues.quantityAvailable);
-        if (image) formData.append("image", image as Blob);
-        formData.append("createdAt", new Date().toISOString());
-        formData.append("itemId", itemIdToUpdate);
-        formData.append("availability", "true");
-        formData.append("preparationTime", formValues.preparationTime);
+      if (editing) {
+        if (validateForm()) {
+          const formData = new FormData();
+          formData.append("name", formValues.name);
+          formData.append("category", formValues.category);
+          formData.append("price", formValues.price);
+          formData.append("quantityAvailable", formValues.quantityAvailable);
+          if (image) formData.append("image", image as Blob);
+          formData.append("createdAt", new Date().toISOString());
+          formData.append("itemId", itemIdToUpdate);
+          formData.append("availability", "true");
+          formData.append("preparationTime", formValues.preparationTime);
 
-        try {
-          const response = await axios.put(
-            `${apiUrl}/inventory/${itemIdToUpdate}`,
-            formData,
-            { headers: { "Content-Type": "multipart/form-data" } }
-          );
-          if (response.data) {
-            setUpdateComponent((state) => state + 1);
-            socket.emit('order-update', {room:'order', message:"New menu item created"});
 
-            resetForm();
+          try {
+            const response = await axios.put(
+              `${apiUrl}/inventory/${itemIdToUpdate}`,
+              formData,
+              { headers: { "Content-Type": "multipart/form-data" } }
+            );
+            if (response.data) {
+              setUpdateComponent((state) => state + 1);
+              socket.emit('order-update', { room: 'order', message: "New menu item created" });
+
+              resetForm();
+            }
+          } catch (error) {
+            console.error("Error submitting form", error);
           }
-        } catch (error) {
-          console.error("Error submitting form", error);
+        }
+      } else {
+        if (validateForm()) {
+          submitForm();
         }
       }
-    } else {
-      if (validateForm()) {
-        submitForm();
-      }
+
     }
+
   };
 
   const handleEdit = (item: InventoryItem) => {
@@ -323,15 +333,11 @@ const MenuManagement = () => {
             )}
           </Grid>
           <Grid item xs={12}>
-            {editing ? (
-              <Button variant="contained" color="primary" fullWidth type="submit">
-                Update Item
-              </Button>
-            ) : (
+            
               <Button variant="contained" color="primary" fullWidth type="submit">
                 Submit
               </Button>
-            )}
+           
           </Grid>
         </Grid>
       </form>
@@ -406,31 +412,35 @@ function MenuI({
 }) {
   return (
     <Card sx={{ marginBottom: "20px", boxShadow: 3, borderRadius: 2 }}>
-      <CardContent sx={{ display: "flex", justifyContent: "space-between" }}>
+      <CardContent sx={{ display: "flex", alignItems: "center" }}>
+        {/* Image */}
         <img
           src={`${apiUrl}/inventory/${item.itemId}`}
           alt={item.name}
           style={{
             width: "150px",
+            height: "150px",
             borderRadius: "8px",
             boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
           }}
         />
+        {/* Details */}
         <Box sx={{ flex: 1, marginLeft: "16px" }}>
-          <Typography variant="h5" color="primary">
+          <Typography variant="h5" color="primary" sx={{ fontWeight: "bold" }}>
             {item.name}
           </Typography>
-          <Typography variant="h6" color="textSecondary">
+          <Typography variant="h6" color="textSecondary" sx={{ marginTop: "8px" }}>
             Price: Rs {item.price}
           </Typography>
-          <Typography variant="h6" color="textSecondary">
+          <Typography variant="h6" color="textSecondary" sx={{ marginTop: "8px" }}>
             Quantity Available: {item.quantityAvailable}
           </Typography>
-          <Typography variant="h6" color="textSecondary">
+          <Typography variant="h6" color="textSecondary" sx={{ marginTop: "8px" }}>
             Prep Time: {item.preparationTime} minutes
           </Typography>
-          <Box sx={{ display: "flex", marginTop: "10px" }}>
-            <Button
+          {/* Action Buttons */}
+          <Box sx={{ display: "flex", marginTop: "16px" }}>
+            {/* <Button
               variant="outlined"
               color="primary"
               onClick={() => {
@@ -440,7 +450,7 @@ function MenuI({
               sx={{ marginRight: "8px" }}
             >
               Edit
-            </Button>
+            </Button> */}
             <Button
               variant="outlined"
               color="error"
@@ -454,5 +464,6 @@ function MenuI({
     </Card>
   );
 }
+
 
 export default MenuManagement;

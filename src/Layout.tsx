@@ -18,7 +18,6 @@ import {
   Badge,
   Typography,
 } from "@mui/material";
-import NotificationImportantIcon from "@mui/icons-material/NotificationImportant";
 import "./Layout.css";
 import Marquee from "react-fast-marquee";
 import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
@@ -26,6 +25,8 @@ import { useAppDispatch, useAppSelector } from "./store/hooks/hooks";
 import { update } from "./store/slices/socketSlice";
 import { addNotification } from "./store/slices/notificationsSlice";
 import { clearNotifications } from "./store/slices/notificationsSlice";
+import { useLocation } from "react-router-dom";
+import NotificationsIcon from '@mui/icons-material/Notifications';
 
 
 export const apiUrl = import.meta.env.VITE_API_URL;
@@ -37,12 +38,11 @@ export const socket = io(import.meta.env.VITE_SOCKET_API_URL, {
 
 
 
-// const notificationSound = new Audio("src/audios/simple-notification-152054.mp3");
+const notificationSound = new Audio("src/audios/simple-notification-152054.mp3");
 
-// Play notification sound
-// function playNotificationSound() {
-//   notificationSound.play();
-// }
+function playNotificationSound() {
+  notificationSound.play();
+}
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -56,6 +56,25 @@ export default function Layout({ children }: LayoutProps) {
   const isInitialized = useRef(false); // Ensure one-time initialization
   const socketRef = useRef(socket);
   const [socketConnection, setSocketConnection] = useState(false)
+  const location = useLocation();
+
+  useEffect(() => {
+    // Use a switch statement to set the value based on the path
+    switch (location.pathname) {
+      case '/':
+        setValue(0);
+        break;
+      case '/menu':
+        setValue(1);
+        break;
+      case '/payments':
+        setValue(2);
+        break;
+      default:
+        setValue(0); // Default value for unknown paths
+        break;
+    }
+  }, [location.pathname]);
 
   useEffect(() => {
 
@@ -104,6 +123,7 @@ export default function Layout({ children }: LayoutProps) {
     // Listen for notifications
     socketInstance.on('notification', (data: String) => {
       dispatch(addNotification(data));
+      playNotificationSound()
     });
 
     socketInstance.on('disconnect', (reason) => {
@@ -155,6 +175,11 @@ export default function Layout({ children }: LayoutProps) {
           value={value}
           onChange={(_, newValue: number) => {
             setValue(newValue);
+          }}
+          sx={{
+            display:"grid",
+            gridTemplateColumns:"1fr 1fr 1fr 1fr",
+            placeItems:"center"
           }}
         >
           <BottomNavigationAction
@@ -210,6 +235,8 @@ const NotificationIconWithMenu = () => {
 
   const handleClose = () => {
     setAnchorEl(null);
+    handleClear()
+
   };
 
   const handleSnackbarOpen = () => {
@@ -218,9 +245,8 @@ const NotificationIconWithMenu = () => {
 
   const handleSnackbarClose = () => {
     setOpenSnackbar(false);
+    handleClear()
   };
-
-  console.log("notifications length",notifications.length)
 
   function handleClear() {
 
@@ -232,7 +258,7 @@ const NotificationIconWithMenu = () => {
     <Box sx={{ display: "flex", alignItems: "center", padding: 2 }}>
       <IconButton onClick={handleClick} color="primary">
         <Badge badgeContent={notifications.length} color="error">
-          <NotificationImportantIcon />
+          <NotificationsIcon />
         </Badge>
       </IconButton>
       <Menu
@@ -243,21 +269,19 @@ const NotificationIconWithMenu = () => {
           style: { maxHeight: 200, width: "90%" },
         }}
       >
-        {notifications.length > 0 ? (<div>
-          <MenuItem onClick={handleClear}>
-            <Typography variant="body2">Clear all</Typography>
-          </MenuItem>
+        {notifications.length > 0 ? (
 
-          {notifications.map((notification, index) => (
+
+          notifications.map((notification, index) => (
             <MenuItem key={index} onClick={handleSnackbarOpen}>
               <Typography variant="body2">{notification}</Typography>
             </MenuItem>
-          ))}
-
-         
+          ))
 
 
-        </div>) : (
+
+
+        ) : (
           <MenuItem>
             <Typography variant="body2">No new notifications</Typography>
           </MenuItem>

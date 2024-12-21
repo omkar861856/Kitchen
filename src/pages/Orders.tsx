@@ -32,7 +32,7 @@ const Orders = () => {
   const [sortField, setSortField] = useState("");
   const [sortDirection, setSortDirection] = useState("asc");
   const [selectedUserId, setSelectedUserId] = useState("");
-  const socketOrder = useAppSelector(state=>state.socket.orderPage)
+  const socketOrder = useAppSelector(state => state.socket.orderPage)
   const dispatch = useAppDispatch();
 
   // Get unique user IDs from orders
@@ -40,7 +40,7 @@ const Orders = () => {
 
   useEffect(() => {
     dispatch(fetchOrders());
-  }, [socketOrder,dispatch]);
+  }, [socketOrder, dispatch]);
 
   useEffect(() => {
     let orders = [...pendingOrders];
@@ -64,7 +64,7 @@ const Orders = () => {
     }
 
     setFilteredOrders(orders);
-  }, [ pendingOrders, sortField, sortDirection, selectedUserId]);
+  }, [pendingOrders, sortField, sortDirection, selectedUserId]);
 
   const handleClearFilters = () => {
     setSortField("");
@@ -82,7 +82,7 @@ const Orders = () => {
       <Box sx={{ marginBottom: 2, width: "100%" }}>
         <Grid container spacing={2}>
           <Grid item xs={12} sm={6} md={3}>
-            <FormControl fullWidth>
+            <FormControl sx={{ padding: 0 }} fullWidth>
               <InputLabel>Sort By</InputLabel>
               <Select
                 value={sortField}
@@ -154,6 +154,10 @@ const OrderComponent = ({ order }: OrderProps) => {
     orderedAt,
     completedAt,
     totalPreparationTime,
+    userFullName,
+    cabinName, 
+    extraInfo, 
+    specialInstructions,
   } = order;
 
   const initialTimeInSeconds = totalPreparationTime * 60;
@@ -214,19 +218,33 @@ const OrderComponent = ({ order }: OrderProps) => {
     }
   };
 
+  const makeCall = () => {
+    window.location.href = `tel:${order.userPhoneNumber}`;
+  };
   return (
     <Card sx={{ maxWidth: "100%", margin: "20px auto", borderRadius: "8px", boxShadow: 3 }}>
       <CardContent>
         <Typography variant="h5" color="primary" gutterBottom>
-          Order ID: {orderId}
+        Name: <Typography variant="h5" component="span" color="white">{userFullName}</Typography> 
         </Typography>
         <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <Typography variant="body1" color="text.secondary" gutterBottom>
-            User ID: {userId}
+             Order ID: {orderId}
           </Typography>
-          <Button variant="outlined" color="primary">
+          <Button onClick={makeCall} variant="outlined" color="primary">
             Call User
           </Button>
+        </Box>
+        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        <Typography variant="body1" color="text.secondary" gutterBottom>
+             Cabin No.: {cabinName}
+          </Typography>
+          <Typography variant="body1" color="text.secondary" gutterBottom>
+             Extra Info: {extraInfo}
+          </Typography>
+          <Typography variant="body1" color="text.secondary" gutterBottom>
+             Special Instructions: {specialInstructions}
+          </Typography>
         </Box>
         <Typography
           variant="body1"
@@ -274,7 +292,16 @@ const OrderComponent = ({ order }: OrderProps) => {
             Ordered At: {formatDate(orderedAt)}
           </Typography>
           <Typography variant="body2" color="text.secondary">
-            Completed At: {formatDate(completedAt)}
+            Completed At: {orderStatus === "pending" ?
+              <Typography
+                variant="body1"
+                color={orderStatus === "pending" ? "orange" : "green"}
+                fontWeight="bold"
+                component="span"
+              >
+                {orderStatus.charAt(0).toUpperCase() + orderStatus.slice(1)}
+              </Typography>
+              : formatDate(completedAt)}
           </Typography>
         </Box>
 
