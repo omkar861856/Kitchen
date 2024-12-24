@@ -27,6 +27,7 @@ import { addNotification } from "./store/slices/notificationsSlice";
 import { clearNotifications } from "./store/slices/notificationsSlice";
 import { useLocation } from "react-router-dom";
 import NotificationsIcon from '@mui/icons-material/Notifications';
+import "react-toastify/dist/ReactToastify.css";
 
 
 export const apiUrl = import.meta.env.VITE_API_URL;
@@ -35,8 +36,6 @@ export const socket = io(import.meta.env.VITE_SOCKET_API_URL, {
   reconnectionAttempts: 5, // Number of attempts before giving up
   reconnectionDelay: 2000, // Delay between reconnection attempts
 });
-
-
 
 const notificationSound = new Audio("src/audios/simple-notification-152054.mp3");
 
@@ -48,6 +47,7 @@ interface LayoutProps {
   children: React.ReactNode;
 }
 
+
 export default function Layout({ children }: LayoutProps) {
   const [value, setValue] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
@@ -57,6 +57,8 @@ export default function Layout({ children }: LayoutProps) {
   const socketRef = useRef(socket);
   const [socketConnection, setSocketConnection] = useState(false)
   const location = useLocation();
+  const [notifications, setNotifications] = useState<string[]>([]);
+
 
   useEffect(() => {
     // Use a switch statement to set the value based on the path
@@ -105,20 +107,14 @@ export default function Layout({ children }: LayoutProps) {
       });
     }
 
-    // Socket setup
-    socketInstance.on("connect", () => {
-      setSocketConnection(true)
-      console.log("Socket connected with ID:", socket.id);
-    });
-
     socketInstance.on("order-update-server", () => {
       dispatch(update());
     });
 
     // Join specific rooms for notifications
-    socket.emit('joinRoom', 'menu');
-    socket.emit('joinRoom', 'order');
-    socket.emit('joinRoom', 'payment');
+    // socket.emit('joinRoom', 'menu');
+    // socket.emit('joinRoom', 'order');
+    // socket.emit('joinRoom', 'payment');
 
     // Listen for notifications
     socketInstance.on('notification', (data: String) => {
@@ -139,6 +135,8 @@ export default function Layout({ children }: LayoutProps) {
   }, [dispatch, socketConnection]);
 
 
+  
+
   return (
     <Box
       sx={{
@@ -149,6 +147,7 @@ export default function Layout({ children }: LayoutProps) {
       ref={ref}
     >
       <CssBaseline />
+
       <div id="setting-nav" style={{ overflowX: "hidden" }}>
         <ColorModeSelect />
         <NotificationIconWithMenu />
@@ -253,7 +252,6 @@ const NotificationIconWithMenu = () => {
     dispatch(clearNotifications())
 
   }
-
   return (
     <Box sx={{ display: "flex", alignItems: "center", padding: 2 }}>
       <IconButton onClick={handleClick} color="primary">
@@ -270,17 +268,11 @@ const NotificationIconWithMenu = () => {
         }}
       >
         {notifications.length > 0 ? (
-
-
           notifications.map((notification, index) => (
             <MenuItem key={index} onClick={handleSnackbarOpen}>
               <Typography variant="body2">{notification}</Typography>
             </MenuItem>
           ))
-
-
-
-
         ) : (
           <MenuItem>
             <Typography variant="body2">No new notifications</Typography>

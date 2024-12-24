@@ -32,7 +32,6 @@ const Orders = () => {
   const [sortField, setSortField] = useState("");
   const [sortDirection, setSortDirection] = useState("asc");
   const [selectedUserId, setSelectedUserId] = useState("");
-  const socketOrder = useAppSelector(state => state.socket.orderPage)
   const dispatch = useAppDispatch();
 
   // Get unique user IDs from orders
@@ -40,7 +39,7 @@ const Orders = () => {
 
   useEffect(() => {
     dispatch(fetchOrders());
-  }, [socketOrder, dispatch]);
+  }, [ dispatch]);
 
   useEffect(() => {
     let orders = [...pendingOrders];

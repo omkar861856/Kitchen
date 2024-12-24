@@ -2,6 +2,7 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { apiUrl } from '../../Layout';
 import { InventoryItem } from './menuSlice';
+import { socket } from '../../Layout';
 
 // Define interfaces for orders and their statuses
 export interface Order {
@@ -70,6 +71,9 @@ export const updateOrderStatus = createAsyncThunk(
     async ({ orderId, status }: { orderId: string; status: string }) => {
         try {
             const response = await axios.put(`${apiUrl}/orders/${orderId}`, { status });
+            if(response.data){
+                socket.emit('order-update', {room:'order', message:"Order status updated successfully"});
+            }
             return response.data.order; // Assuming the updated order is returned
         } catch (error) {
             throw Error('Failed to update order status');
