@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useAuth, useClerk } from '@clerk/clerk-react';
 import './ProtectedRoute.css';
 

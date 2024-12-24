@@ -57,7 +57,6 @@ export default function Layout({ children }: LayoutProps) {
   const socketRef = useRef(socket);
   const [socketConnection, setSocketConnection] = useState(false)
   const location = useLocation();
-  const [notifications, setNotifications] = useState<string[]>([]);
 
 
   useEffect(() => {
