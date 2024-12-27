@@ -299,8 +299,6 @@ const NotificationIconWithMenu = () => {
 const PhoneIcon = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
-  const notificationss = useAppSelector(state => state.notifications)
-  const notifications = notificationss.notifications
   const dispatch = useAppDispatch();
   const {kitchenStatus} = useAppSelector(state=>state.app)
 
@@ -317,9 +315,9 @@ const PhoneIcon = () => {
     setAnchorEl(null);
   };
 
-  const handleSnackbarOpen = () => {
-    setOpenSnackbar(true);
-  };
+  // const handleSnackbarOpen = () => {
+  //   setOpenSnackbar(true);
+  // };
 
   const handleSnackbarClose = () => {
     setOpenSnackbar(false);
