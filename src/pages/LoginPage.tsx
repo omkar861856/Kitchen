@@ -101,6 +101,9 @@ const LoginForm = () => {
                 otpExpiresAt: otpExpiry,
                 token: res.data.token,
                 isLoggedIn: true,
+                isKitchen: null,
+                kitchenId: null,
+                kitchenName: null
             }));
             navigate('/');
             toast.success('Login successful!');
