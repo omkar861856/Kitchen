@@ -25,6 +25,7 @@ import {
 import { useAppSelector, useAppDispatch } from "../store/hooks/hooks";
 import { fetchOrders, updateOrderStatus } from "../store/slices/ordersSlice";
 import { Order } from "../store/slices/ordersSlice";
+import { socket } from "../Layout";
 
 const Orders = () => {
   const { pendingOrders } = useAppSelector((state) => state.orders);
@@ -156,6 +157,7 @@ const OrderComponent = ({ order }: OrderProps) => {
     cabinName, 
     extraInfo, 
     specialInstructions,
+    userPhoneNumber
   } = order;
 
   const initialTimeInSeconds = totalPreparationTime * 60;
@@ -192,10 +194,10 @@ const OrderComponent = ({ order }: OrderProps) => {
     setCompletionTime((prevTime) => prevTime + 5 * 60); // Add 5 minutes
   };
 
-  const handleMarkCompleted = (orderId: string) => {
-    setOrderStatus("completed");
+  const handleMarkCompleted = async (orderId: string) => {
     setCompletionTime(0);
-    dispatch(updateOrderStatus({ orderId, status: "completed" }));
+    await dispatch(updateOrderStatus({ orderId, status: "completed" }));
+    socket.emit('orderCompleted',{userPhoneNumber, orderId})
   };
 
   const formatDate = (date: string | undefined) => {

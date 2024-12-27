@@ -1,43 +1,19 @@
-import { useState } from 'react';
-import { useAuth, useClerk } from '@clerk/clerk-react';
-import './ProtectedRoute.css';
+import React from 'react';
+import { Navigate } from 'react-router-dom';
+import { useAppSelector } from './store/hooks/hooks';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
 }
 
 const ProtectedRoute = ({ children }: ProtectedRouteProps) => {
-  const { isLoaded, isSignedIn } = useAuth();
-  const { redirectToSignIn } = useClerk();
-  const [showMessage, setShowMessage] = useState(false);
+  const { isLoggedIn, isKitchen } = useAppSelector((state) => state.auth);
 
-  // Show a loading spinner while Clerk is determining the authentication state
-  if (!isLoaded) {
-    return (
-      <div className="loading-spinner">
-      </div>
-    );
+  // If the user is not authenticated, redirect to the login page
+  if (!isLoggedIn && !isKitchen) {
+    return <Navigate to="/signin" replace />;
   }
-
-  // If the user is not signed in, display a message before redirecting
-  if (!isSignedIn) {
-    if (!showMessage) {
-      setShowMessage(true);
-      setTimeout(() => {
-        redirectToSignIn({
-          redirectUrl: window.location.href, // Redirect back to the current page after sign-in
-        });
-      }, 3000); // Redirect after 3 seconds
-    }
-
-    return (
-      <div className="login-message">
-        <p>Please log in to continue...</p>
-      </div>
-    );
-  }
-
-  // If the user is signed in, render the children (the protected route)
+  // If the user is authenticated, render the children (protected content)
   return <>{children}</>;
 };
 

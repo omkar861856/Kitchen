@@ -8,7 +8,6 @@ export interface InventoryItem {
     name: string;
     category: string;
     price: number;
-    quantityAvailable: number;
     availability: boolean;
     preparationTime: number;
     image: string,

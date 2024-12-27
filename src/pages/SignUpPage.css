@@ -1,0 +1,91 @@
+.form-container {
+    max-width: 400px;
+    margin: 50px auto;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+input {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+button {
+    padding: 10px 15px;
+    background: #007BFF;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #0056b3;
+}
+
+.form-container>p {
+    color: red;
+    font-size: 12px;
+}
+
+/* Basic styles for the anchor tag */
+a {
+    display: inline-block;
+    text-decoration: none; /* Remove default underline */
+    color: #007BFF; /* Default text color */
+    font-weight: 500; /* Slightly bold */
+    transition: all 0.3s ease; /* Smooth transitions for effects */
+    position: relative; /* For pseudo-element positioning */
+  }
+  
+  /* Hover effect */
+  a:hover {
+    color: #0056b3; /* Darken the text color */
+    text-decoration: underline; /* Add an underline */
+  }
+  
+  /* On click (active state) */
+  a:active {
+    color: #003f7f; /* Even darker color */
+    transform: scale(0.98); /* Slightly scale down for a pressed effect */
+  }
+  
+  /* Focus effect (keyboard navigation) */
+  a:focus {
+    outline: 2px dashed #80bdff; /* Accessible outline */
+    outline-offset: 2px;
+  }
+  
+  /* Fancy underline effect */
+  a::after {
+    content: '';
+    display: block;
+    height: 2px;
+    width: 0%;
+    background: #007BFF;
+    transition: width 0.3s ease;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+  }
+  
+  a:hover::after {
+    width: 100%; /* Expand underline on hover */
+  }
+  
+  a:active::after {
+    background: #003f7f; /* Change underline color on click */
+  }
+  
+  /* Disabled state */
+  a:disabled {
+    color: #6c757d; /* Gray out text */
+    pointer-events: none; /* Disable pointer events */
+    cursor: not-allowed; /* Change cursor to indicate disabled state */
+  }

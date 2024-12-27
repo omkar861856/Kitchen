@@ -20,14 +20,12 @@ import { SelectChangeEvent } from "@mui/material";
 import "./MenuManagement.css";
 import { apiUrl } from "../Layout";
 import { socket } from "../Layout";
-import { useUser } from "@clerk/clerk-react";
 
 
 interface FormValues {
   name: string;
   category: string;
   price: string;
-  quantityAvailable: string;
   preparationTime: string;
   image: string;
 }
@@ -37,7 +35,6 @@ interface InventoryItem {
   name: string;
   category: string;
   price: number;
-  quantityAvailable: number;
   preparationTime: number;
   image: string;
 }
@@ -48,7 +45,6 @@ const MenuManagement = () => {
   const [imagePreview, setImagePreview] = useState<string>("");
   const [updateComponent, setUpdateComponent] = useState(0);
   const [itemIdToUpdate, setItemIdToUpdate] = useState<string>("");
-  const user = useUser()
 
 
 
@@ -56,7 +52,6 @@ const MenuManagement = () => {
     name: "",
     category: "",
     price: "",
-    quantityAvailable: "",
     preparationTime: "",
     image: "",
   };
@@ -65,7 +60,6 @@ const MenuManagement = () => {
     name: "",
     category: "",
     price: "",
-    quantityAvailable: "",
     preparationTime: "",
     image: "",
   };
@@ -73,6 +67,7 @@ const MenuManagement = () => {
   const [formValues, setFormValues] = useState<FormValues>(initialFormValues);
   const [errors, setErrors] = useState<FormValues>(initialErrors);
   const [editing, setEditing] = useState(false);
+  const {phone} = useAppSelector(state=>state.auth)
 
   useEffect(() => {
     dispatch(fetchInventory());
@@ -85,11 +80,6 @@ const MenuManagement = () => {
     if (!formValues.category) newErrors.category = "Category is required.";
     if (Number(formValues.price) <= 0 || isNaN(Number(formValues.price)))
       newErrors.price = "Price must be greater than zero.";
-    if (
-      Number(formValues.quantityAvailable) <= 0 ||
-      isNaN(Number(formValues.quantityAvailable))
-    )
-      newErrors.quantityAvailable = "Quantity must be greater than zero.";
     if (
       Number(formValues.preparationTime) <= 0 ||
       isNaN(Number(formValues.preparationTime))
@@ -140,7 +130,6 @@ const MenuManagement = () => {
       formData.append("name", formValues.name);
       formData.append("category", formValues.category);
       formData.append("price", formValues.price);
-      formData.append("quantityAvailable", formValues.quantityAvailable);
       formData.append("preparationTime", formValues.preparationTime);
       formData.append("image", image as Blob);
       formData.append("createdAt", new Date().toISOString());
@@ -152,7 +141,7 @@ const MenuManagement = () => {
         });
         if (response.data) {
           setUpdateComponent((state) => state + 1);
-          socket.emit("order-update", { room: "order", message: "A new item added to menu" })
+          socket.emit("menuItemCreated", formValues.name)
           resetForm();
         }
       } catch (error) {
@@ -162,7 +151,7 @@ const MenuManagement = () => {
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
-    if (user.user?.primaryPhoneNumber == null) {
+    if (phone == null) {
       alert("please add your phone number in the profile section")
     } else {
       e.preventDefault();
@@ -173,7 +162,6 @@ const MenuManagement = () => {
           formData.append("name", formValues.name);
           formData.append("category", formValues.category);
           formData.append("price", formValues.price);
-          formData.append("quantityAvailable", formValues.quantityAvailable);
           if (image) formData.append("image", image as Blob);
           formData.append("createdAt", new Date().toISOString());
           formData.append("itemId", itemIdToUpdate);
@@ -215,7 +203,6 @@ const MenuManagement = () => {
       name: item.name,
       category: item.category,
       price: item.price.toString(),
-      quantityAvailable: item.quantityAvailable.toString(),
       image: item.image,
       preparationTime: item.preparationTime.toString(),
     });
@@ -275,19 +262,6 @@ const MenuManagement = () => {
               onChange={handleInputChange}
               error={!!errors.price}
               helperText={errors.price}
-              type="number"
-            />
-          </Grid>
-          <Grid item xs={12} sm={6}>
-            <TextField
-              label="Quantity Available"
-              variant="outlined"
-              fullWidth
-              name="quantityAvailable"
-              value={formValues.quantityAvailable}
-              onChange={handleInputChange}
-              error={!!errors.quantityAvailable}
-              helperText={errors.quantityAvailable}
               type="number"
             />
           </Grid>
@@ -431,24 +405,20 @@ function MenuI({
             Price: Rs {item.price}
           </Typography>
           <Typography variant="h6" color="textSecondary" sx={{ marginTop: "8px" }}>
-            Quantity Available: {item.quantityAvailable}
-          </Typography>
-          <Typography variant="h6" color="textSecondary" sx={{ marginTop: "8px" }}>
             Prep Time: {item.preparationTime} minutes
           </Typography>
           {/* Action Buttons */}
           <Box sx={{ display: "flex", marginTop: "16px" }}>
-            {/* <Button
+            <Button
               variant="outlined"
               color="primary"
               onClick={() => {
-                handleEdit(item);
-                setItemIdToUpdate(item.itemId);
+              
               }}
               sx={{ marginRight: "8px" }}
             >
-              Edit
-            </Button> */}
+              yes/no
+            </Button>
             <Button
               variant="outlined"
               color="error"

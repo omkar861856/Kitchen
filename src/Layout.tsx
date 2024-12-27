@@ -7,7 +7,6 @@ import MenuBookIcon from "@mui/icons-material/MenuBook";
 import RestaurantIcon from "@mui/icons-material/Restaurant";
 import Paper from "@mui/material/Paper";
 import ColorModeSelect from "./pages/shared-theme/ColorModeSelect";
-import { SignedIn, SignedOut, SignInButton, UserButton } from "@clerk/clerk-react";
 import { useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 import {
@@ -28,10 +27,14 @@ import { clearNotifications } from "./store/slices/notificationsSlice";
 import { useLocation } from "react-router-dom";
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import "react-toastify/dist/ReactToastify.css";
-
+import PhonelinkRingIcon from '@mui/icons-material/PhonelinkRing';
+import AccountBoxIcon from '@mui/icons-material/AccountBox';
+import PhonelinkEraseIcon from '@mui/icons-material/PhonelinkErase';
+import { updateKitchenStatus } from "./store/slices/appSlice";
 
 export const apiUrl = import.meta.env.VITE_API_URL;
-export const socket = io(import.meta.env.VITE_SOCKET_API_URL, {
+const socket_url = import.meta.env.VITE_SOCKET_API_URL;
+export const socket = io(`${socket_url}/kitchen`, {
   reconnection: true, // Allow reconnections
   reconnectionAttempts: 5, // Number of attempts before giving up
   reconnectionDelay: 2000, // Delay between reconnection attempts
@@ -57,7 +60,7 @@ export default function Layout({ children }: LayoutProps) {
   const socketRef = useRef(socket);
   const [socketConnection, setSocketConnection] = useState(false)
   const location = useLocation();
-
+  const { isLoggedIn } = useAppSelector(state => state.auth)
 
   useEffect(() => {
     // Use a switch statement to set the value based on the path
@@ -70,6 +73,9 @@ export default function Layout({ children }: LayoutProps) {
         break;
       case '/payments':
         setValue(2);
+        break;
+      case '/profile':
+        setValue(3);
         break;
       default:
         setValue(0); // Default value for unknown paths
@@ -134,7 +140,7 @@ export default function Layout({ children }: LayoutProps) {
   }, [dispatch, socketConnection]);
 
 
-  
+
 
   return (
     <Box
@@ -149,7 +155,20 @@ export default function Layout({ children }: LayoutProps) {
 
       <div id="setting-nav" style={{ overflowX: "hidden" }}>
         <ColorModeSelect />
-        <NotificationIconWithMenu />
+
+        {isLoggedIn
+          ?
+          <div className="icons-right">
+
+            <PhoneIcon />
+
+            <NotificationIconWithMenu />
+
+          </div>
+          :
+          null}
+
+
       </div>
       <div className="info-nav" style={{ maxWidth: "100%", overflowX: "hidden" }}>
         <Marquee style={{ wordBreak: "break-word" }}>
@@ -175,9 +194,9 @@ export default function Layout({ children }: LayoutProps) {
             setValue(newValue);
           }}
           sx={{
-            display:"grid",
-            gridTemplateColumns:"1fr 1fr 1fr 1fr",
-            placeItems:"center"
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr 1fr 1fr",
+            placeItems: "center"
           }}
         >
           <BottomNavigationAction
@@ -187,7 +206,7 @@ export default function Layout({ children }: LayoutProps) {
           />
           <BottomNavigationAction
             onClick={() => navigate("/menu")}
-            label="Menu Management"
+            label="Menu"
             icon={<MenuBookIcon />}
           />
           <BottomNavigationAction
@@ -195,19 +214,8 @@ export default function Layout({ children }: LayoutProps) {
             label="Payments"
             icon={<CurrencyRupeeIcon />}
           />
-          <BottomNavigationAction
-            label="Profile"
-            icon={
-              <>
-                <SignedOut>
-                  <SignInButton />
-                </SignedOut>
-                <SignedIn>
-                  <UserButton />
-                </SignedIn>
-              </>
-            }
-          />
+          <BottomNavigationAction onClick={() => navigate("/profile")} label="Profile" icon={
+            <AccountBoxIcon color={isLoggedIn ? "success" : undefined} />} />
         </BottomNavigation>
       </Paper>
     </Box>
@@ -277,6 +285,80 @@ const NotificationIconWithMenu = () => {
             <Typography variant="body2">No new notifications</Typography>
           </MenuItem>
         )}
+      </Menu>
+      <Snackbar
+        open={openSnackbar}
+        onClose={handleSnackbarClose}
+        message="Notification clicked!"
+        autoHideDuration={3000}
+      />
+    </Box>
+  );
+};
+
+const PhoneIcon = () => {
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const [openSnackbar, setOpenSnackbar] = useState(false);
+  const notificationss = useAppSelector(state => state.notifications)
+  const notifications = notificationss.notifications
+  const dispatch = useAppDispatch();
+  const {kitchenStatus} = useAppSelector(state=>state.app)
+
+  // const notifications = [
+  //   "New order received!",
+  //   "Payment failed!",
+  // ];
+
+  const handleClick = (event: React.MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleSnackbarOpen = () => {
+    setOpenSnackbar(true);
+  };
+
+  const handleSnackbarClose = () => {
+    setOpenSnackbar(false);
+  };
+
+  return (
+    <Box sx={{ display: "flex", alignItems: "center", padding: 2 }}>
+      <IconButton onClick={handleClick} color="primary">
+        {
+          kitchenStatus == 'online'
+          ?
+          <PhonelinkRingIcon />
+          :
+          <PhonelinkEraseIcon />
+        }
+      </IconButton>
+      <Menu
+        anchorEl={anchorEl}
+        open={Boolean(anchorEl)}
+        onClose={handleClose}
+        PaperProps={{
+          style: { maxHeight: 200, width: "auto" },
+        }}
+      >
+        {
+          kitchenStatus == "online"
+          ?
+          <button onClick={async ()=>{
+            await dispatch(updateKitchenStatus('offline'))
+            socket.emit('kitchenStatusUpdated','offline')
+          }
+          }>Off</button>
+          :
+          <button onClick={async ()=>{
+           await dispatch(updateKitchenStatus('online'))
+           socket.emit('kitchenStatusUpdated','online')
+          }
+          }>On</button>
+        }
       </Menu>
       <Snackbar
         open={openSnackbar}

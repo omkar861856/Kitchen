@@ -7,7 +7,6 @@ export interface CartItem {
   price: number;
   quantity: number;
   availability: boolean;
-  quantityAvailable: number;
   image?: string;
   createdAt: string;
   updatedAt: string;
@@ -49,19 +48,6 @@ const cartSlice = createSlice({
           }
         }
       },
-      incrementCart: (state, action: PayloadAction<CartItem>) => {
-        const item = action.payload;
-        
-        // Find the item in the cart
-        const existingItem = state.find(cartItem => cartItem.itemId === item.itemId);
-      
-        if (existingItem) {
-          // Check if the current quantity is less than the available quantity
-          if (existingItem.quantity < item.quantityAvailable) {
-            existingItem.quantity += 1; // Increment the quantity
-          }
-        }
-      },
       removeFromCart: (state, action: PayloadAction<CartItem>) => {
         const item = action.payload;
         
@@ -78,5 +64,5 @@ const cartSlice = createSlice({
 
   
 
-export const { setCart, incrementCart, decrementCart, removeFromCart } = cartSlice.actions;
+export const { setCart, decrementCart, removeFromCart } = cartSlice.actions;
 export default cartSlice.reducer;
