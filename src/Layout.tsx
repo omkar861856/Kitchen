@@ -29,7 +29,7 @@ import "react-toastify/dist/ReactToastify.css";
 import PhonelinkRingIcon from '@mui/icons-material/PhonelinkRing';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import PhonelinkEraseIcon from '@mui/icons-material/PhonelinkErase';
-import { fetchKitchenStatus, updateKitchenStatus } from "./store/slices/appSlice";
+import { fetchKitchenStatus, setWebWorkerDetails, updateKitchenStatus } from "./store/slices/appSlice";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import GoogleTranslate from "./components/GoogleTranslate";
@@ -86,6 +86,21 @@ export default function Layout({ children }: LayoutProps) {
   }, [location.pathname]);
 
   useEffect(() => {
+    // Request permission if not already granted
+    if (Notification.permission === "default") {
+      Notification.requestPermission();
+    }
+  
+    if (Notification.permission === "granted") {
+      new Notification("example notification", {
+        body: "Welcome to this app",
+      });
+    } else if (Notification.permission === "denied") {
+      console.warn("Notifications are blocked by the user.");
+    }
+  }, [location.pathname]);
+
+  useEffect(() => {
 
     const socketInstance = socketRef.current;
 
@@ -120,12 +135,17 @@ export default function Layout({ children }: LayoutProps) {
       dispatch(addNotification({type:"order", data:`${order.order.userFullName} placed an order`}))
     });
    
-
     // Listen for notifications
     socketInstance.on('notification', (data: String) => {
       console.log(data)
       playNotificationSound()
     });
+
+    socketInstance.on('welcomeMessage',(data: {message:string; vapiPublicKey: string}) => {
+      console.log(data.message)
+      dispatch(setWebWorkerDetails(data.vapiPublicKey))
+      playNotificationSound()
+    })
 
     socketInstance.on('disconnect', (reason) => {
       console.log(`Disconnected: ${reason}`);
@@ -137,14 +157,13 @@ export default function Layout({ children }: LayoutProps) {
       socketInstance.off("order-update-server");
       socketInstance.off('notification');
       socketInstance.off('orderCreated');
+      socketInstance.off('welcomeMessage')
     };
   }, [dispatch, socketConnection]);
 
   useEffect(()=>{
     dispatch(fetchKitchenStatus())
   },[])
-
-
 
 
   return (

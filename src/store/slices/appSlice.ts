@@ -10,6 +10,7 @@ interface AppState {
   error:string | null;
   status: "loading" | "succeeded" | "failed" | null;
   kitchenStatus: boolean;
+  vapiPublicKey: string;
   
 }
 
@@ -20,6 +21,7 @@ const initialState: AppState = {
   error:null,
   status: null,
   kitchenStatus:false,
+  vapiPublicKey:"empty"
   
 };
 
@@ -74,6 +76,11 @@ const feedbackSlice = createSlice({
     setAppState: () => {
      
     },
+    setWebWorkerDetails: (state,action)=>{
+
+        state.vapiPublicKey = action.payload.vapiPublicKey
+
+    }
   },
   extraReducers: (builder) => {
     builder
@@ -116,5 +123,5 @@ const feedbackSlice = createSlice({
 });
 
 // Export actions and reducer
-export const { setAppState } = feedbackSlice.actions;
+export const { setAppState, setWebWorkerDetails } = feedbackSlice.actions;
 export default feedbackSlice.reducer;
