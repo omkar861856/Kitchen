@@ -13,6 +13,7 @@ import { socket } from './Layout';
 
 
 const App = () => {
+  
   useEffect(() => {
 
     navigator.serviceWorker.ready.then(async (registration) => {

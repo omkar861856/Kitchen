@@ -22,3 +22,12 @@ self.addEventListener('notificationclick', (event) => {
     clients.openWindow('http://localhost:5173') // Replace with your app's URL
   );
 });
+
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open('notification-sounds').then((cache) => {
+      return cache.add('public/simple-notification-152054.mp3');
+    })
+  );
+});
+

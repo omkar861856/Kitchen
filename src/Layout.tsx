@@ -33,6 +33,7 @@ import { fetchKitchenStatus, setWebWorkerDetails, updateKitchenStatus } from "./
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import GoogleTranslate from "./components/GoogleTranslate";
+import { cacheAudioFile } from "./utils/cacheAudioFile";
 
 export const apiUrl = import.meta.env.VITE_API_URL;
 const socket_url = import.meta.env.VITE_SOCKET_API_URL;
@@ -42,11 +43,29 @@ export const socket = io(`${socket_url}/kitchen`, {
   reconnectionDelay: 2000, // Delay between reconnection attempts
 });
 
-const notificationSound = new Audio("src/audios/simple-notification-152054.mp3");
+const audioUrl = 'public/simple-notification-152054.mp3'
+cacheAudioFile(audioUrl);
 
-function playNotificationSound() {
-  notificationSound.play();
-}
+export const playNotificationSound = async (audioUrl: string) => {
+  if ('caches' in window) {
+    try {
+      const cacheName = 'notification-sounds';
+      const cache = await caches.open(cacheName);
+      const response = await cache.match(audioUrl);
+      if (response) {
+        const audioBlob = await response.blob();
+        const audio = new Audio(URL.createObjectURL(audioBlob));
+        audio.play();
+      } else {
+        console.warn('Audio file not found in cache. Playing from server...');
+        const audio = new Audio(audioUrl);
+        audio.play();
+      }
+    } catch (error) {
+      console.error('Error playing notification sound:', error);
+    }
+  }
+};
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -130,21 +149,22 @@ export default function Layout({ children }: LayoutProps) {
     }
 
     socketInstance.on("orderCreated", (order) => {
-      playNotificationSound()
+      console.log(order)
+      playNotificationSound(audioUrl)
       dispatch(update());
-      dispatch(addNotification({type:"order", data:`${order.order.userFullName} placed an order`}))
+      dispatch(addNotification({type:"order", data:`${order.order.userFullName} placed an order at Cabin No.${order.order.cabinName}`}))
     });
    
     // Listen for notifications
     socketInstance.on('notification', (data: String) => {
       console.log(data)
-      playNotificationSound()
+      playNotificationSound(audioUrl)
     });
 
     socketInstance.on('welcomeMessage',(data: {message:string; vapiPublicKey: string}) => {
       console.log(data.message)
       dispatch(setWebWorkerDetails(data.vapiPublicKey))
-      playNotificationSound()
+      playNotificationSound(audioUrl)
     })
 
     socketInstance.on('disconnect', (reason) => {

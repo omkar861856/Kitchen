@@ -26,7 +26,6 @@ export const fetchInventory = createAsyncThunk('menu/fetchAll', async (_,thunkAP
     const state:any = thunkAPI.getState()
     const {kitchenId} = state.auth;
     const response = await axios.post(`${apiUrl}/inventory/kitchen`,{kitchenId});
-    console.log(response.data)
     return response.data; 
 });
 
