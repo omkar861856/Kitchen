@@ -32,21 +32,22 @@ const Orders = () => {
   const [filteredOrders, setFilteredOrders] = useState<Order[]>([]);
   const [sortField, setSortField] = useState("");
   const [sortDirection, setSortDirection] = useState("asc");
-  const [selectedUserId, setSelectedUserId] = useState("");
+  const [selectedUserName, setSelectedUserName] = useState("");
   const dispatch = useAppDispatch();
-
-  // Get unique user IDs from orders
-  const uniqueUserIds = Array.from(new Set(pendingOrders.map((order) => order.userId)));
+  const {notifications} = useAppSelector(state=>state.notifications)
+  // Get unique user Names from orders
+  const uniqueUserNames = Array.from(new Set(pendingOrders.map((order) => order.userFullName)));
+  const [orderCompletion, setOrderCompletion] = useState(0)
 
   useEffect(() => {
     dispatch(fetchOrders());
-  }, [ dispatch]);
+  }, [ dispatch, notifications, orderCompletion]);
 
   useEffect(() => {
     let orders = [...pendingOrders];
 
-    if (selectedUserId) {
-      orders = orders.filter((order) => order.userId === selectedUserId);
+    if (selectedUserName) {
+      orders = orders.filter((order) => order.userFullName === selectedUserName);
     }
 
     if (sortField === "orderedAt") {
@@ -64,18 +65,18 @@ const Orders = () => {
     }
 
     setFilteredOrders(orders);
-  }, [pendingOrders, sortField, sortDirection, selectedUserId]);
+  }, [pendingOrders, sortField, sortDirection, selectedUserName]);
 
   const handleClearFilters = () => {
     setSortField("");
     setSortDirection("asc");
-    setSelectedUserId("");
+    setSelectedUserName("");
   };
 
   return (
     <div>
       <Typography variant="h4" gutterBottom>
-        Total Pending Orders: {filteredOrders.length}
+        Pending Orders: {filteredOrders.length}
       </Typography>
 
       {/* Responsive Filter Section */}
@@ -109,13 +110,15 @@ const Orders = () => {
             </FormControl>
           </Grid>
 
+          {/* filtering by userId or fullname */}
+
           <Grid item xs={12} sm={6} md={4}>
             <Autocomplete
-              options={uniqueUserIds}
-              value={selectedUserId}
-              onChange={(_, newValue) => setSelectedUserId(newValue || "")}
+              options={uniqueUserNames}
+              value={selectedUserName}
+              onChange={(_, newValue) => setSelectedUserName(newValue || "")}
               renderInput={(params) => (
-                <TextField {...params} label="Filter by User ID" variant="outlined" fullWidth />
+                <TextField {...params} label="Filter by User Names" variant="outlined" fullWidth />
               )}
             />
           </Grid>
@@ -133,8 +136,8 @@ const Orders = () => {
         </Grid>
       </Box>
 
-      {filteredOrders.map((order) => (
-        <OrderComponent key={order.orderId} order={order} />
+      {filteredOrders.map((order, i) => (
+        <OrderComponent setOrderCompletion={setOrderCompletion} key={order.orderId} order={order} index={i}/>
       ))}
     </div>
   );
@@ -142,16 +145,17 @@ const Orders = () => {
 
 interface OrderProps {
   order: Order;
+  index: number;
+  setOrderCompletion: (prev: number | ((prev: number) => number)) => void;
 }
 
-const OrderComponent = ({ order }: OrderProps) => {
+const OrderComponent = ({ order, index, setOrderCompletion }: OrderProps) => {
   const {
     orderId,
     items,
     totalPrice,
     status,
     orderedAt,
-    completedAt,
     totalPreparationTime,
     userFullName,
     cabinName, 
@@ -197,7 +201,8 @@ const OrderComponent = ({ order }: OrderProps) => {
   const handleMarkCompleted = async (orderId: string) => {
     setCompletionTime(0);
     await dispatch(updateOrderStatus({ orderId, status: "completed" }));
-    socket.emit('orderCompleted',{userPhoneNumber, orderId})
+    setOrderCompletion(prev=>prev+1)
+    socket.emit('orderCompleted',{phoneNumber: userPhoneNumber, orderId})
   };
 
   const formatDate = (date: string | undefined) => {
@@ -224,6 +229,11 @@ const OrderComponent = ({ order }: OrderProps) => {
   return (
     <Card sx={{ maxWidth: "100%", margin: "20px auto", borderRadius: "8px", boxShadow: 3 }}>
       <CardContent>
+        <hr/>
+        <br />
+      <Typography variant="h5" color="primary" gutterBottom>
+        (<Typography variant="h5" component="span" color="white">{index+1}.</Typography>)
+        </Typography>
         <Typography variant="h5" color="primary" gutterBottom>
         Name: <Typography variant="h5" component="span" color="white">{userFullName}</Typography> 
         </Typography>
@@ -291,20 +301,7 @@ const OrderComponent = ({ order }: OrderProps) => {
           <Typography variant="body2" color="text.secondary">
             Ordered At: {formatDate(orderedAt)}
           </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Completed At: {orderStatus === "pending" ?
-              <Typography
-                variant="body1"
-                color={orderStatus === "pending" ? "orange" : "green"}
-                fontWeight="bold"
-                component="span"
-              >
-                {orderStatus.charAt(0).toUpperCase() + orderStatus.slice(1)}
-              </Typography>
-              : formatDate(completedAt)}
-          </Typography>
         </Box>
-
         <Box sx={{ marginTop: "16px", display: "flex", gap: "10px", justifyContent: "center" }}>
           {orderStatus === "pending" && (
             <>
@@ -328,6 +325,8 @@ const OrderComponent = ({ order }: OrderProps) => {
           </Typography>
           <LinearProgress variant="determinate" value={progress} sx={{ marginTop: "8px" }} />
         </Box>
+        <br />
+        <hr />
       </CardContent>
     </Card>
   );

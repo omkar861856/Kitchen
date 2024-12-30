@@ -115,68 +115,71 @@ const SignUpLoginForm = () => {
     };
 
     return (
-        <div className="form-container">
-            <h4>Sign Up</h4>
-            <ToastContainer />
-            {!isLoggedIn ? (
-                <form onSubmit={handleSubmit(isOtpSent ? onVerifyOtp : onSendOtp)}>
-                    {!isOtpSent && (
-                        <>
+        <div>
+           <ToastContainer />
+
+            <div className="form-container">
+                <h4>Sign Up</h4>
+                {!isLoggedIn ? (
+                    <form onSubmit={handleSubmit(isOtpSent ? onVerifyOtp : onSendOtp)}>
+                        {!isOtpSent && (
+                            <>
+                                <input
+                                    type="text"
+                                    placeholder="First Name"
+                                    {...register('firstName', { required: true })}
+                                />
+                                {errors.firstName && <p>First Name is required</p>}
+                                <input
+                                    type="text"
+                                    placeholder="Last Name"
+                                    {...register('lastName', { required: true })}
+                                />
+                                {errors.lastName && <p>Last Name is required</p>}
+                                <input
+                                    type="text"
+                                    placeholder="Kitchen Name"
+                                    {...register('kitchenName', { required: true, pattern: /^[a-zA-Z\s]{5,15}$/ })}
+                                />
+                                {errors.kitchenName && <p>Enter name with 5 to 15 characters</p>}
+                                <input
+                                    type="text"
+                                    placeholder="Phone Number (10 digits only)"
+                                    {...register('phone', { required: true, pattern: /^[6-9]\d{9}$/ })}
+                                />
+                                {errors.phone && <p>Enter a valid phone number</p>}
+                                 </>
+                        )}
+                        {isOtpSent && (
                             <input
                                 type="text"
-                                placeholder="First Name"
-                                {...register('firstName', { required: true })}
+                                placeholder="Enter OTP"
+                                {...register('otp', { required: true })}
                             />
-                            {errors.firstName && <p>First Name is required</p>}
-                            <input
-                                type="text"
-                                placeholder="Last Name"
-                                {...register('lastName', { required: true })}
-                            />
-                            {errors.lastName && <p>Last Name is required</p>}
-                            <input
-                                type="text"
-                                placeholder="Kitchen Name"
-                                {...register('kitchenName', { required: true, pattern: /^[a-zA-Z\s]{5,15}$/ })}
-                            />
-                            {errors.kitchenName && <p>Enter name with 5 to 15 characters</p>}
-                            <input
-                                type="text"
-                                placeholder="Phone Number (10 digits only)"
-                                {...register('phone', { required: true, pattern: /^[6-9]\d{9}$/ })}
-                            />
-                            {errors.phone && <p>Enter a valid phone number</p>}
-                             </>
-                    )}
-                    {isOtpSent && (
-                        <input
-                            type="text"
-                            placeholder="Enter OTP"
-                            {...register('otp', { required: true })}
-                        />
-                    )}
-                    {isOtpSent && (
-                        <div>
-                            {isButtonVisible ? (
-                                <button type="button" onClick={resendOtp}>Resend OTP</button>
-                            ) : (
-                                <p>Resend OTP in {cooldown} seconds</p>
-                            )}
-                        </div>
-                    )}
-                    <button type="submit">{isOtpSent ? 'Verify OTP' : 'Send OTP'}</button>
-                </form>
-            ) : (
-                <div>
-                    <p>You are logged in</p>
-                    <button onClick={onLogout}>Logout</button>
-                </div>
-            )}
-            <h5>
-                <a id='signin' onClick={() => navigate('/signin')}>Sign in</a>
-                &nbsp;
-                If you already have an account.
-            </h5>
+                        )}
+                        {isOtpSent && (
+                            <div>
+                                {isButtonVisible ? (
+                                    <button type="button" onClick={resendOtp}>Resend OTP</button>
+                                ) : (
+                                    <p>Resend OTP in {cooldown} seconds</p>
+                                )}
+                            </div>
+                        )}
+                        <button type="submit">{isOtpSent ? 'Verify OTP' : 'Send OTP'}</button>
+                    </form>
+                ) : (
+                    <div>
+                        <p>You are logged in</p>
+                        <button onClick={onLogout}>Logout</button>
+                    </div>
+                )}
+                <h5>
+                    <a id='signin' onClick={() => navigate('/signin')}>Sign in</a>
+                    &nbsp;
+                    If you already have an account.
+                </h5>
+            </div>
         </div>
     );
 };

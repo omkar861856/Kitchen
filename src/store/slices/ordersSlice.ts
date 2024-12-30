@@ -42,9 +42,12 @@ const initialState: OrdersState = {
 // Async thunk to fetch orders
 export const fetchOrders = createAsyncThunk(
     'orders/fetchAll',
-    async () => {
+    async (_,thunkAPI) => {
+        const state:any = thunkAPI.getState();
+        const {kitchenId} = state.auth;
+
         try {
-            const response = await axios.get(`${apiUrl}/orders`);
+            const response = await axios.get(`${apiUrl}/orders/${kitchenId}`);
             return response.data; // Assuming the response contains the orders in the "orders" field
         } catch (error) {
             throw Error('Failed to fetch orders');

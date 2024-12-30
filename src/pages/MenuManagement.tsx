@@ -46,8 +46,6 @@ const MenuManagement = () => {
   const [updateComponent, setUpdateComponent] = useState(0);
   const [itemIdToUpdate, setItemIdToUpdate] = useState<string>("");
 
-
-
   const initialFormValues: FormValues = {
     name: "",
     category: "",
@@ -68,6 +66,7 @@ const MenuManagement = () => {
   const [errors, setErrors] = useState<FormValues>(initialErrors);
   const [editing, setEditing] = useState(false);
   const {phone} = useAppSelector(state=>state.auth)
+  const {kitchenId} = useAppSelector(state=>state.auth)
 
   useEffect(() => {
     dispatch(fetchInventory());
@@ -135,6 +134,7 @@ const MenuManagement = () => {
       formData.append("createdAt", new Date().toISOString());
       formData.append("itemId", uuidv4());
       formData.append("availability", "true");
+      formData.append("kitchenId", kitchenId)
       try {
         const response = await axios.post(`${apiUrl}/inventory`, formData, {
           headers: { "Content-Type": "multipart/form-data" },

@@ -1,8 +1,13 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 
+export interface Notification {
+  type: String;
+  data: String;
+}
+
 // Define the state structure
 export interface NotificationsState {
-  notifications: String[];
+  notifications: Notification[];
 }
 
 // Initial state
@@ -15,7 +20,7 @@ const notificationsSlice = createSlice({
   name: 'notifications',
   initialState,
   reducers: {
-    addNotification: (state, action: PayloadAction<String>) => {
+    addNotification: (state, action: PayloadAction<Notification>) => {
       // Push the notification object to the notifications array
       state.notifications.push(action.payload);
     },

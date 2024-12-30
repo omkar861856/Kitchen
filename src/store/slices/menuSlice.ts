@@ -22,8 +22,11 @@ const initialState: InventoryItem[] = [];
 // Async thunks for inventory operations
 
 // Fetch all inventory items
-export const fetchInventory = createAsyncThunk('menu/fetchAll', async () => {
-    const response = await axios.get(`${apiUrl}/inventory`);
+export const fetchInventory = createAsyncThunk('menu/fetchAll', async (_,thunkAPI) => {
+    const state:any = thunkAPI.getState()
+    const {kitchenId} = state.auth;
+    const response = await axios.post(`${apiUrl}/inventory/kitchen`,{kitchenId});
+    console.log(response.data)
     return response.data; 
 });
 

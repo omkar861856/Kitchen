@@ -1,0 +1,20 @@
+/* Hide the Google Translate banner */
+.goog-te-banner-frame {
+    display: none !important;
+}
+
+body {
+    top: 0 !important;
+}
+
+/* Style the dropdown */
+#google_translate_element select {
+    border: 1px solid #ccc;
+    padding: 5px;
+    font-size: 14px;
+}
+
+/* Ensure the widget is visible */
+#google_translate_element {
+    margin-top: 20px;
+}

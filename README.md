@@ -35,11 +35,6 @@ VITE_CLERK_PUBLISHABLE_KEY="your_clerk_publishable_key_for_development"
 # .env.production
 VITE_API_URL="https://your-deployed-backend-link.com"
 
-VITE_CLERK_PUBLISHABLE_KEY="your_clerk_publishable_key_for_production"
-
-## Generate API Keys on Clerk
-Create or use your existing project in Clerk’s Dashboard to generate the publishable key. This will be used for authentication and is required to be set in both .env.development and .env.production.
-
 ## How to Contribute
 1. Ask Questions & Request Clarifications: Feel free to open Issues on the respective repositories if you have any doubts.
 2. Propose Features: You can create Pull Requests or discuss enhancements in GitHub Issues.

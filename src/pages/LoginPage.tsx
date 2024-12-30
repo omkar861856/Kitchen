@@ -102,7 +102,6 @@ const LoginForm = () => {
                 token: res.data.token,
                 isLoggedIn: true,
                 isKitchen: null,
-                kitchenId: null,
                 kitchenName: null
             }));
             navigate('/');
@@ -123,40 +122,42 @@ const LoginForm = () => {
     };
 
     return (
-        <div className="form-container">
+        <div>
             <ToastContainer />
-            <h4>Sign In</h4>
-            <form onSubmit={handleSubmit(isOtpSent ? onVerifyOtp : onSendOtp)}>
-                {!isOtpSent && (
-                    <>
-                        <input
-                            type="text"
-                            placeholder="Phone Number (10 digit only)"
-                            {...register('phone', { required: true, pattern: /^[6-9]\d{9}$/ })}
-                        />
-                        {errors.phone && <p>Enter a valid phone number</p>}
-                    </>
-                )}
-                {isOtpSent && (
-                    <>
-                        <input
-                            type="text"
-                            placeholder="Enter OTP"
-                            {...register('otp', { required: true })}
-                        />
-                        {cooldown > 0 ? (
-                            <p>Resend OTP in {cooldown} seconds</p>
-                        ) : (
-                            <button type="button" onClick={resendOtp}>Resend OTP</button>
-                        )}
-                    </>
-                )}
-                <button type="submit">{isOtpSent ? 'Verify OTP' : 'Sign In'}</button>
-            </form>
-            <h5>
-                <a id="signup" onClick={() => navigate('/signup')}>Sign up</a>
-                &nbsp;If you don't have an account.
-            </h5>
+            <div className="form-container">
+                <h4>Sign In</h4>
+                <form onSubmit={handleSubmit(isOtpSent ? onVerifyOtp : onSendOtp)}>
+                    {!isOtpSent && (
+                        <>
+                            <input
+                                type="text"
+                                placeholder="Phone Number (10 digit only)"
+                                {...register('phone', { required: true, pattern: /^[6-9]\d{9}$/ })}
+                            />
+                            {errors.phone && <p>Enter a valid phone number</p>}
+                        </>
+                    )}
+                    {isOtpSent && (
+                        <>
+                            <input
+                                type="text"
+                                placeholder="Enter OTP"
+                                {...register('otp', { required: true })}
+                            />
+                            {cooldown > 0 ? (
+                                <p>Resend OTP in {cooldown} seconds</p>
+                            ) : (
+                                <button type="button" onClick={resendOtp}>Resend OTP</button>
+                            )}
+                        </>
+                    )}
+                    <button type="submit">{isOtpSent ? 'Verify OTP' : 'Sign In'}</button>
+                </form>
+                <h5>
+                    <a id="signup" onClick={() => navigate('/signup')}>Sign up</a>
+                    &nbsp;If you don't have an account.
+                </h5>
+            </div>
         </div>
     );
 };

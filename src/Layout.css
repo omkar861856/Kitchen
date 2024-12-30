@@ -6,3 +6,18 @@
 .icons-right{
     display: flex;
 }
+
+#google_translate_element select {
+    border: 1px solid #ccc;
+    padding: 5px;
+    font-size: 14px;
+}
+
+.goog-te-banner-frame {
+    display: none !important;
+}
+
+.info-nav{
+    display: grid;
+    grid-template-columns: auto 1fr;
+}

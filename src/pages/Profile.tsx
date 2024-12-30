@@ -6,10 +6,12 @@ import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { logoutUser } from "../store/slices/authSlice";
+import { updateKitchenStatus } from "../store/slices/appSlice";
+import QRCodeGenerator from "../components/QRGenerator";
 
 const ProfilePage: React.FC = () => {
   const dispatch = useAppDispatch();
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
   const handleResetStore = () => {
     dispatch({ type: 'RESET_STORE' });
@@ -20,6 +22,7 @@ const ProfilePage: React.FC = () => {
 
   // Logout handler
   const handleLogout = async () => {
+    await dispatch(updateKitchenStatus(false))
     await dispatch(logoutUser(phone));
     handleResetStore()
     toast.success('Logoutsuccessful!');
@@ -59,6 +62,7 @@ const ProfilePage: React.FC = () => {
         <Typography variant="body1" sx={{ mb: 2 }}>
           <strong>Kitchen Id:</strong> {kitchenId}
         </Typography>
+        <QRCodeGenerator />
         <Button
           variant="contained"
           color="primary"

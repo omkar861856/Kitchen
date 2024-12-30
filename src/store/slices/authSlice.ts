@@ -18,7 +18,7 @@ export interface AuthState {
     otpExpiresAt: string | null; // ISO string for OTP expiration time
     isKitchen: boolean | null;
     kitchenName: string | null;
-    kitchenId: string | null;
+    kitchenId: string;
 }
 
 const initialState: AuthState = {
@@ -31,7 +31,7 @@ const initialState: AuthState = {
     otpExpiresAt: null,
     isKitchen: null,
     kitchenName: null,
-    kitchenId:  null,
+    kitchenId:  "empty",
 };
 
 // Thunk to handle user signup
@@ -117,7 +117,6 @@ const authSlice = createSlice({
             state,
             action: PayloadAction<{
                 isKitchen: boolean | null;
-                kitchenId: string | null;
                 kitchenName: string | null; firstName: string;token: string; lastName: string; phone: string; otp: string; otpExpiresAt: string; isLoggedIn: boolean 
 }>
         ) => {
@@ -129,7 +128,6 @@ const authSlice = createSlice({
             state.token = action.payload.token;
             state.isLoggedIn = action.payload.isLoggedIn;
             state.isKitchen= action.payload.isKitchen;
-            state.kitchenId= action.payload.kitchenId;
             state.kitchenName = action.payload.kitchenName;
         },
     },

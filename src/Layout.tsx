@@ -22,15 +22,17 @@ import Marquee from "react-fast-marquee";
 import CurrencyRupeeIcon from "@mui/icons-material/CurrencyRupee";
 import { useAppDispatch, useAppSelector } from "./store/hooks/hooks";
 import { update } from "./store/slices/socketSlice";
-import { addNotification } from "./store/slices/notificationsSlice";
-import { clearNotifications } from "./store/slices/notificationsSlice";
+import { addNotification, clearNotifications } from "./store/slices/notificationsSlice";
 import { useLocation } from "react-router-dom";
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import "react-toastify/dist/ReactToastify.css";
 import PhonelinkRingIcon from '@mui/icons-material/PhonelinkRing';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import PhonelinkEraseIcon from '@mui/icons-material/PhonelinkErase';
-import { updateKitchenStatus } from "./store/slices/appSlice";
+import { fetchKitchenStatus, updateKitchenStatus } from "./store/slices/appSlice";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+import GoogleTranslate from "./components/GoogleTranslate";
 
 export const apiUrl = import.meta.env.VITE_API_URL;
 const socket_url = import.meta.env.VITE_SOCKET_API_URL;
@@ -112,18 +114,16 @@ export default function Layout({ children }: LayoutProps) {
       });
     }
 
-    socketInstance.on("order-update-server", () => {
+    socketInstance.on("orderCreated", (order) => {
+      playNotificationSound()
       dispatch(update());
+      dispatch(addNotification({type:"order", data:`${order.order.userFullName} placed an order`}))
     });
-
-    // Join specific rooms for notifications
-    // socket.emit('joinRoom', 'menu');
-    // socket.emit('joinRoom', 'order');
-    // socket.emit('joinRoom', 'payment');
+   
 
     // Listen for notifications
     socketInstance.on('notification', (data: String) => {
-      dispatch(addNotification(data));
+      console.log(data)
       playNotificationSound()
     });
 
@@ -136,8 +136,13 @@ export default function Layout({ children }: LayoutProps) {
       socketInstance.off("connect");
       socketInstance.off("order-update-server");
       socketInstance.off('notification');
+      socketInstance.off('orderCreated');
     };
   }, [dispatch, socketConnection]);
+
+  useEffect(()=>{
+    dispatch(fetchKitchenStatus())
+  },[])
 
 
 
@@ -155,7 +160,7 @@ export default function Layout({ children }: LayoutProps) {
 
       <div id="setting-nav" style={{ overflowX: "hidden" }}>
         <ColorModeSelect />
-
+        
         {isLoggedIn
           ?
           <div className="icons-right">
@@ -171,6 +176,8 @@ export default function Layout({ children }: LayoutProps) {
 
       </div>
       <div className="info-nav" style={{ maxWidth: "100%", overflowX: "hidden" }}>
+      <GoogleTranslate />
+
         <Marquee style={{ wordBreak: "break-word" }}>
           Canteen will be closed on Sundays.
         </Marquee>
@@ -277,7 +284,7 @@ const NotificationIconWithMenu = () => {
         {notifications.length > 0 ? (
           notifications.map((notification, index) => (
             <MenuItem key={index} onClick={handleSnackbarOpen}>
-              <Typography variant="body2">{notification}</Typography>
+              <Typography variant="body2">{notification.data}</Typography>
             </MenuItem>
           ))
         ) : (
@@ -325,13 +332,14 @@ const PhoneIcon = () => {
 
   return (
     <Box sx={{ display: "flex", alignItems: "center", padding: 2 }}>
+      <ToastContainer />
       <IconButton onClick={handleClick} color="primary">
         {
-          kitchenStatus == 'online'
+          kitchenStatus
           ?
-          <PhonelinkRingIcon />
+          <PhonelinkRingIcon color="success"/>
           :
-          <PhonelinkEraseIcon />
+          <PhonelinkEraseIcon color="error"/>
         }
       </IconButton>
       <Menu
@@ -343,17 +351,21 @@ const PhoneIcon = () => {
         }}
       >
         {
-          kitchenStatus == "online"
+          kitchenStatus
           ?
           <button onClick={async ()=>{
-            await dispatch(updateKitchenStatus('offline'))
-            socket.emit('kitchenStatusUpdated','offline')
+            await dispatch(updateKitchenStatus(false))
+            toast.error("Offline")
+            socket.emit('kitchenStatusUpdated',false)
+            handleClose()
           }
           }>Off</button>
           :
           <button onClick={async ()=>{
-           await dispatch(updateKitchenStatus('online'))
-           socket.emit('kitchenStatusUpdated','online')
+           await dispatch(updateKitchenStatus(true))
+           toast.success("Online")
+           socket.emit('kitchenStatusUpdated',true)
+           handleClose()
           }
           }>On</button>
         }
