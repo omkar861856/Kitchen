@@ -117,7 +117,7 @@ const authSlice = createSlice({
             state,
             action: PayloadAction<{
                 isKitchen: boolean | null;
-                kitchenName: string | null; firstName: string;token: string; lastName: string; phone: string; otp: string; otpExpiresAt: string; isLoggedIn: boolean 
+                kitchenName: string | null; firstName: string;token: string; lastName: string; phone: string; otp: string; otpExpiresAt: string; isLoggedIn: boolean; kitchenId: string;
 }>
         ) => {
             state.firstName = action.payload.firstName;
@@ -129,6 +129,7 @@ const authSlice = createSlice({
             state.isLoggedIn = action.payload.isLoggedIn;
             state.isKitchen= action.payload.isKitchen;
             state.kitchenName = action.payload.kitchenName;
+            state.kitchenId = action.payload.kitchenId
         },
     },
     extraReducers: (builder) => {
