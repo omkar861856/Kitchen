@@ -1,19 +1,28 @@
 self.addEventListener('push', (event) => {
   console.log('Push event received:', event);
 
-  // Extract plain text data from the push event
-  const message = event.data ? event.data.json() : 'Default notification text';
+  if (!event.data) {
+    console.error('Push event has no data');
+    return;
+  }
 
-  // Display the notification
-  const options = {
-    body: message, // Use the plain text as the notification body
-    icon: '', // Replace with the actual path to your icon
-    badge: '', // Replace with the actual path to your badge icon
-  };
+  try {
+    // Attempt to parse the data
+    const message = event.data.json();
+    console.log('Parsed message:', message);
 
-  event.waitUntil(
-    self.registration.showNotification('New Notification', options)
-  );
+    const options = {
+      body: message.body || 'Default notification body', // Use a default value if body is missing
+      icon: message.icon || '', // Replace with actual path to your icon
+      badge: message.badge || '', // Replace with actual path to your badge icon
+    };
+
+    event.waitUntil(
+      self.registration.showNotification(message.title || 'New Notification', options)
+    );
+  } catch (error) {
+    console.error('Failed to parse push event data as JSON:', error);
+  }
 });
 
 self.addEventListener('notificationclick', (event) => {
@@ -31,3 +40,6 @@ self.addEventListener('install', (event) => {
   );
 });
 
+self.dispatchEvent(new PushEvent('push', {
+  data: JSON.stringify({ title: 'Test', body: 'This is a test notification.' }),
+}));
