@@ -1,7 +1,7 @@
 
 const Payments = () => {
   return (
-    <div>Payments</div>
+    <div>Soon to be functional</div>
   )
 }
 

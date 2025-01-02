@@ -20,7 +20,7 @@ import { SelectChangeEvent } from "@mui/material";
 import "./MenuManagement.css";
 import { apiUrl } from "../Layout";
 import { socket } from "../Layout";
-
+import { updateInventoryItem } from "../store/slices/menuSlice";
 
 interface FormValues {
   name: string;
@@ -37,6 +37,7 @@ interface InventoryItem {
   price: number;
   preparationTime: number;
   image: string;
+  availability: boolean;
 }
 
 const MenuManagement = () => {
@@ -65,8 +66,8 @@ const MenuManagement = () => {
   const [formValues, setFormValues] = useState<FormValues>(initialFormValues);
   const [errors, setErrors] = useState<FormValues>(initialErrors);
   const [editing, setEditing] = useState(false);
-  const {phone} = useAppSelector(state=>state.auth)
-  const {kitchenId} = useAppSelector(state=>state.auth)
+  const { phone } = useAppSelector(state => state.auth)
+  const { kitchenId } = useAppSelector(state => state.auth)
 
   useEffect(() => {
     dispatch(fetchInventory());
@@ -307,11 +308,11 @@ const MenuManagement = () => {
             )}
           </Grid>
           <Grid item xs={12}>
-            
-              <Button variant="contained" color="primary" fullWidth type="submit">
-                Submit
-              </Button>
-           
+
+            <Button variant="contained" color="primary" fullWidth type="submit">
+              Submit
+            </Button>
+
           </Grid>
         </Grid>
       </form>
@@ -382,6 +383,7 @@ function MenuI({
   handleEdit: Function;
   handleDelete: Function;
 }) {
+  const dispatch = useAppDispatch()
   return (
     <Card sx={{ marginBottom: "20px", boxShadow: 3, borderRadius: 2 }}>
       <CardContent sx={{ display: "flex", alignItems: "center" }}>
@@ -409,24 +411,57 @@ function MenuI({
           </Typography>
           {/* Action Buttons */}
           <Box sx={{ display: "flex", marginTop: "16px" }}>
-            <Button
-              variant="outlined"
-              color="primary"
-              onClick={() => {
-              
-              }}
-              sx={{ marginRight: "8px" }}
-            >
-              yes/no
-            </Button>
+              {
+                item.availability ? (
+                  <button
+                    onClick={async () => {
+                      await dispatch(
+                        updateInventoryItem({ itemId: item.itemId, updates: { availability: false } })
+                      );
+                      socket.emit('menuNotification', `${item.name} is now unavailable`);
+                    }}
+                    style={{
+                      backgroundColor: 'green',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '5px',
+                      padding: '10px 15px',
+                      cursor: 'pointer',
+                      height:'auto',
+                      margin:'0.5rem'
+                    }}
+                  >
+                  </button>
+                ) : (
+                  <button
+                    onClick={async () => {
+                      await dispatch(updateInventoryItem({ itemId: item.itemId, updates: { availability: true } }))
+                      socket.emit('menuNotification', `${item.name} is now available`);
+
+                    }
+                    }
+                    style={{
+                      backgroundColor: 'red',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '5px',
+                      padding: '10px 15px',
+                      cursor: 'pointer',
+                      height:'auto',
+                      margin:'0.5rem'
+                    }}
+                  >
+                  </button>
+                )
+              }
             <Button
               variant="outlined"
               color="error"
               onClick={() => handleDelete(item.itemId)}
             >
-              Delete
+              X
             </Button>
-          </Box>
+          </Box> 
         </Box>
       </CardContent>
     </Card>

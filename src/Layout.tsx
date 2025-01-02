@@ -82,6 +82,18 @@ export default function Layout({ children }: LayoutProps) {
   const [socketConnection, setSocketConnection] = useState(false)
   const location = useLocation();
   const { isLoggedIn } = useAppSelector(state => state.auth)
+  const {pendingOrders} = useAppSelector(state=>state.orders)
+  const [ordersInvisible, setOrdersInvisible] = useState(false)
+
+  console.log(pendingOrders)
+
+  useEffect(()=>{
+    if(pendingOrders.length!==0){
+      setOrdersInvisible(false)
+    }else{
+      setOrdersInvisible(true)
+    }
+  },[pendingOrders])
 
   useEffect(() => {
     // Use a switch statement to set the value based on the path
@@ -109,7 +121,7 @@ export default function Layout({ children }: LayoutProps) {
     if (Notification.permission === "default") {
       Notification.requestPermission();
     }
-  
+
     if (Notification.permission === "granted") {
       new Notification("example notification", {
         body: "Welcome to this app",
@@ -152,18 +164,18 @@ export default function Layout({ children }: LayoutProps) {
       console.log(order)
       playNotificationSound(audioUrl)
       dispatch(update());
-      dispatch(addNotification({type:"order", data:`${order.order.userFullName} placed an order at Cabin No.${order.order.cabinName}`}))
+      dispatch(addNotification({ type: "order", data: `${order.order.userFullName} placed an order at Cabin No.${order.order.cabinName}` }))
     });
-   
+
     // Listen for notifications
     socketInstance.on('notification', (data: String) => {
       console.log(data)
       playNotificationSound(audioUrl)
     });
 
-    socketInstance.on('welcomeMessage',(data: {message:string; vapiPublicKey: string}) => {
+    socketInstance.on('welcomeMessage', (data: { message: string; vapiPublicKey: string }) => {
       console.log(data.message)
-      dispatch(setWebWorkerDetails(data.vapiPublicKey))
+      dispatch(setWebWorkerDetails("blabla"))
       playNotificationSound(audioUrl)
     })
 
@@ -181,9 +193,14 @@ export default function Layout({ children }: LayoutProps) {
     };
   }, [dispatch, socketConnection]);
 
-  useEffect(()=>{
-    dispatch(fetchKitchenStatus())
-  },[])
+  useEffect(() => {
+    if (isLoggedIn) {
+
+      dispatch(fetchKitchenStatus())
+
+
+    }
+  }, [isLoggedIn])
 
 
   return (
@@ -199,7 +216,7 @@ export default function Layout({ children }: LayoutProps) {
 
       <div id="setting-nav" style={{ overflowX: "hidden" }}>
         <ColorModeSelect />
-        
+
         {isLoggedIn
           ?
           <div className="icons-right">
@@ -215,7 +232,7 @@ export default function Layout({ children }: LayoutProps) {
 
       </div>
       <div className="info-nav" style={{ maxWidth: "100%", overflowX: "hidden" }}>
-      <GoogleTranslate />
+        <GoogleTranslate />
 
         <Marquee style={{ wordBreak: "break-word" }}>
           Canteen will be closed on Sundays.
@@ -248,7 +265,11 @@ export default function Layout({ children }: LayoutProps) {
           <BottomNavigationAction
             onClick={() => navigate("/")}
             label="Orders"
-            icon={<RestaurantIcon />}
+            icon={
+              <Badge color="primary" variant="dot" invisible={ordersInvisible}>
+            <RestaurantIcon />
+            </Badge>
+            }
           />
           <BottomNavigationAction
             onClick={() => navigate("/menu")}
@@ -346,7 +367,7 @@ const PhoneIcon = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const dispatch = useAppDispatch();
-  const {kitchenStatus} = useAppSelector(state=>state.app)
+  const { kitchenStatus } = useAppSelector(state => state.app)
 
   // const notifications = [
   //   "New order received!",
@@ -370,51 +391,54 @@ const PhoneIcon = () => {
   };
 
   return (
-    <Box sx={{ display: "flex", alignItems: "center", padding: 2 }}>
-      <ToastContainer />
-      <IconButton onClick={handleClick} color="primary">
-        {
-          kitchenStatus
-          ?
-          <PhonelinkRingIcon color="success"/>
-          :
-          <PhonelinkEraseIcon color="error"/>
-        }
-      </IconButton>
-      <Menu
-        anchorEl={anchorEl}
-        open={Boolean(anchorEl)}
-        onClose={handleClose}
-        PaperProps={{
-          style: { maxHeight: 200, width: "auto" },
-        }}
-      >
-        {
-          kitchenStatus
-          ?
-          <button onClick={async ()=>{
-            await dispatch(updateKitchenStatus(false))
-            toast.error("Offline")
-            socket.emit('kitchenStatusUpdated',false)
-            handleClose()
+    <>      
+    <ToastContainer />
+
+      <Box sx={{ display: "flex", alignItems: "center", padding: 2 }}>
+        <IconButton onClick={handleClick} color="primary">
+          {
+            kitchenStatus
+              ?
+              <PhonelinkRingIcon color="success" />
+              :
+              <PhonelinkEraseIcon color="error" />
           }
-          }>Off</button>
-          :
-          <button onClick={async ()=>{
-           await dispatch(updateKitchenStatus(true))
-           toast.success("Online")
-           socket.emit('kitchenStatusUpdated',true)
-           handleClose()
+        </IconButton>
+        <Menu
+          anchorEl={anchorEl}
+          open={Boolean(anchorEl)}
+          onClose={handleClose}
+          PaperProps={{
+            style: { maxHeight: 200, width: "auto" },
+          }}
+        >
+          {
+            kitchenStatus
+              ?
+              <button onClick={async () => {
+                await dispatch(updateKitchenStatus(false))
+                toast.error("Offline")
+                socket.emit('kitchenStatus', false)
+                handleClose()
+              }
+              }>Off</button>
+              :
+              <button onClick={async () => {
+                await dispatch(updateKitchenStatus(true))
+                toast.success("Online")
+                socket.emit('kitchenStatus', true)
+                handleClose()
+              }
+              }>On</button>
           }
-          }>On</button>
-        }
-      </Menu>
-      <Snackbar
-        open={openSnackbar}
-        onClose={handleSnackbarClose}
-        message="Notification clicked!"
-        autoHideDuration={3000}
-      />
-    </Box>
+        </Menu>
+        <Snackbar
+          open={openSnackbar}
+          onClose={handleSnackbarClose}
+          message="Notification clicked!"
+          autoHideDuration={3000}
+        />
+      </Box>
+    </>
   );
 };

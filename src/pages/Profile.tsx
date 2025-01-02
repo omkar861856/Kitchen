@@ -8,6 +8,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { logoutUser } from "../store/slices/authSlice";
 import { updateKitchenStatus } from "../store/slices/appSlice";
 import QRCodeGenerator from "../components/QRGenerator";
+import { socket } from "../Layout";
 
 const ProfilePage: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -25,6 +26,7 @@ const ProfilePage: React.FC = () => {
     await dispatch(updateKitchenStatus(false))
     await dispatch(logoutUser(phone));
     handleResetStore()
+    socket.emit('kitchenStatus',false)
     toast.success('Logoutsuccessful!');
     navigate('/signin')
   };

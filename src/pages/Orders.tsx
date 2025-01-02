@@ -6,7 +6,6 @@ import {
   Divider,
   Box,
   Button,
-  LinearProgress,
   Table,
   TableBody,
   TableCell,
@@ -20,7 +19,6 @@ import {
   FormControl,
   Autocomplete,
   TextField,
-  Grid,
 } from "@mui/material";
 import { useAppSelector, useAppDispatch } from "../store/hooks/hooks";
 import { fetchOrders, updateOrderStatus } from "../store/slices/ordersSlice";
@@ -34,14 +32,12 @@ const Orders = () => {
   const [sortDirection, setSortDirection] = useState("asc");
   const [selectedUserName, setSelectedUserName] = useState("");
   const dispatch = useAppDispatch();
-  const {notifications} = useAppSelector(state=>state.notifications)
-  // Get unique user Names from orders
-  const uniqueUserNames = Array.from(new Set(pendingOrders.map((order) => order.userFullName)));
-  const [orderCompletion, setOrderCompletion] = useState(0)
+  const { notifications } = useAppSelector((state) => state.notifications);
+  const [orderCompletion, setOrderCompletion] = useState(0);
 
   useEffect(() => {
     dispatch(fetchOrders());
-  }, [ dispatch, notifications, orderCompletion]);
+  }, [dispatch, notifications, orderCompletion]);
 
   useEffect(() => {
     let orders = [...pendingOrders];
@@ -79,65 +75,65 @@ const Orders = () => {
         Pending Orders: {filteredOrders.length}
       </Typography>
 
-      {/* Responsive Filter Section */}
-      <Box sx={{ marginBottom: 2, width: "100%" }}>
-        <Grid container spacing={2}>
-          <Grid item xs={12} sm={6} md={3}>
-            <FormControl sx={{ padding: 0 }} fullWidth>
-              <InputLabel>Sort By</InputLabel>
-              <Select
-                value={sortField}
-                onChange={(e) => setSortField(e.target.value)}
-              >
-                <MenuItem value="orderedAt">Ordered At</MenuItem>
-                <MenuItem value="totalPreparationTime">
-                  Total Preparation Time
-                </MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+          gap: 2,
+          padding: 2,
+          backgroundColor: "#f5f5f5",
+          borderRadius: "8px",
+          boxShadow: "0px 4px 8px rgba(0, 0, 0, 0.1)",
+          marginBottom: 3,
+        }}
+      >
+        <FormControl>
+          <InputLabel>Sort By</InputLabel>
+          <Select
+            value={sortField}
+            onChange={(e) => setSortField(e.target.value)}
+            fullWidth
+          >
+            <MenuItem value="orderedAt">Ordered At</MenuItem>
+            <MenuItem value="totalPreparationTime">Preparation Time</MenuItem>
+          </Select>
+        </FormControl>
 
-          <Grid item xs={12} sm={6} md={3}>
-            <FormControl fullWidth>
-              <InputLabel>Sort Direction</InputLabel>
-              <Select
-                value={sortDirection}
-                onChange={(e) => setSortDirection(e.target.value)}
-              >
-                <MenuItem value="asc">Ascending</MenuItem>
-                <MenuItem value="desc">Descending</MenuItem>
-              </Select>
-            </FormControl>
-          </Grid>
+        <FormControl>
+          <Select
+            value={sortDirection}
+            onChange={(e) => setSortDirection(e.target.value)}
+            fullWidth
+            displayEmpty
+          >
+            <MenuItem value="asc">↑ Asc</MenuItem>
+            <MenuItem value="desc">↓ Desc</MenuItem>
+          </Select>
+        </FormControl>
 
-          {/* filtering by userId or fullname */}
+        <Autocomplete
+          options={Array.from(new Set(pendingOrders.map((order) => order.userFullName)))}
+          value={selectedUserName}
+          onChange={(_, newValue) => setSelectedUserName(newValue || "")}
+          renderInput={(params) => <TextField {...params} label="User Names" variant="outlined" />}
+        />
 
-          <Grid item xs={12} sm={6} md={4}>
-            <Autocomplete
-              options={uniqueUserNames}
-              value={selectedUserName}
-              onChange={(_, newValue) => setSelectedUserName(newValue || "")}
-              renderInput={(params) => (
-                <TextField {...params} label="Filter by User Names" variant="outlined" fullWidth />
-              )}
-            />
-          </Grid>
-
-          <Grid item xs={12} sm={6} md={2}>
-            <Button
-              variant="contained"
-              color="secondary"
-              fullWidth
-              onClick={handleClearFilters}
-            >
-              Clear All Filters
-            </Button>
-          </Grid>
-        </Grid>
+        <Button
+          variant="contained"
+          color="primary"
+          onClick={handleClearFilters}
+        >
+          ✖ Clear
+        </Button>
       </Box>
 
       {filteredOrders.map((order, i) => (
-        <OrderComponent setOrderCompletion={setOrderCompletion} key={order.orderId} order={order} index={i}/>
+        <OrderComponent
+          setOrderCompletion={setOrderCompletion}
+          key={order.orderId}
+          order={order}
+          index={i}
+        />
       ))}
     </div>
   );
@@ -150,133 +146,47 @@ interface OrderProps {
 }
 
 const OrderComponent = ({ order, index, setOrderCompletion }: OrderProps) => {
-  const {
-    orderId,
-    items,
-    totalPrice,
-    status,
-    orderedAt,
-    totalPreparationTime,
-    userFullName,
-    cabinName, 
-    extraInfo, 
-    specialInstructions,
-    userPhoneNumber
-  } = order;
+  const { orderId, items, totalPrice, status, orderedAt, userFullName, cabinName, extraInfo, specialInstructions, userPhoneNumber } = order;
 
-  const initialTimeInSeconds = totalPreparationTime * 60;
-  const [completionTime, setCompletionTime] = useState(initialTimeInSeconds);
-  const [progress, setProgress] = useState(100);
-  const [orderStatus, setOrderStatus] = useState(status);
   const dispatch = useAppDispatch();
 
-  let timer: NodeJS.Timeout | undefined;
-
-  useEffect(() => {
-    if (orderStatus === "pending" && completionTime > 0) {
-      timer = setInterval(() => {
-        setCompletionTime((prevTime) => {
-          if (prevTime === 1) {
-            clearInterval(timer); // Stop the timer
-            setOrderStatus("completed");
-            return 0;
-          }
-          return prevTime - 1;
-        });
-      }, 1000);
-    }
-    return () => {
-      if (timer) clearInterval(timer);
-    };
-  }, [orderStatus, completionTime]);
-
-  useEffect(() => {
-    setProgress((completionTime / initialTimeInSeconds) * 100); // Calculate progress
-  }, [completionTime, initialTimeInSeconds]);
-
-  const handleDelay = () => {
-    setCompletionTime((prevTime) => prevTime + 5 * 60); // Add 5 minutes
-  };
-
   const handleMarkCompleted = async (orderId: string) => {
-    setCompletionTime(0);
     await dispatch(updateOrderStatus({ orderId, status: "completed" }));
-    setOrderCompletion(prev=>prev+1)
-    socket.emit('orderCompleted',{phoneNumber: userPhoneNumber, orderId})
+    setOrderCompletion((prev) => prev + 1);
+    socket.emit("orderNotification", { phoneNumber: userPhoneNumber, orderId, message: "completed" });
   };
 
-  const formatDate = (date: string | undefined) => {
-    return date ? new Date(date).toLocaleString() : "Not Available";
-  };
-
-  const formatTimeRemaining = (timeInSeconds: number) => {
-    const hours = Math.floor(timeInSeconds / 3600);
-    const minutes = Math.floor((timeInSeconds % 3600) / 60);
-    const seconds = timeInSeconds % 60;
-
-    if (hours > 0) {
-      return `${hours}h ${minutes}m ${String(seconds).padStart(2, "0")}s`;
-    } else if (minutes > 0) {
-      return `${minutes}m ${String(seconds).padStart(2, "0")}s`;
-    } else {
-      return `${seconds}s`;
-    }
-  };
+  const formatDate = (date: string | undefined) => (date ? new Date(date).toLocaleString() : "Not Available");
 
   const makeCall = () => {
     window.location.href = `tel:${order.userPhoneNumber}`;
   };
+
   return (
     <Card sx={{ maxWidth: "100%", margin: "20px auto", borderRadius: "8px", boxShadow: 3 }}>
       <CardContent>
-        <hr/>
-        <br />
-      <Typography variant="h5" color="primary" gutterBottom>
-        (<Typography variant="h5" component="span" color="white">{index+1}.</Typography>)
-        </Typography>
         <Typography variant="h5" color="primary" gutterBottom>
-        Name: <Typography variant="h5" component="span" color="white">{userFullName}</Typography> 
+          ({index + 1}). Name: {userFullName}
         </Typography>
-        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <Typography variant="body1" color="text.secondary" gutterBottom>
-             Order ID: {orderId}
-          </Typography>
+        <Box sx={{ display: "flex", justifyContent: "space-between" }}>
+          <Typography>Order ID: {orderId}</Typography>
           <Button onClick={makeCall} variant="outlined" color="primary">
             Call User
           </Button>
         </Box>
-        <Box sx={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <Typography variant="body1" color="text.secondary" gutterBottom>
-             Cabin No.: {cabinName}
-          </Typography>
-          <Typography variant="body1" color="text.secondary" gutterBottom>
-             Extra Info: {extraInfo}
-          </Typography>
-          <Typography variant="body1" color="text.secondary" gutterBottom>
-             Special Instructions: {specialInstructions}
-          </Typography>
-        </Box>
-        <Typography
-          variant="body1"
-          color={orderStatus === "pending" ? "orange" : "green"}
-          fontWeight="bold"
-        >
-          Status: {orderStatus.charAt(0).toUpperCase() + orderStatus.slice(1)}
-        </Typography>
-
+        <Typography>Cabin No.: {cabinName}</Typography>
+        <Typography>Extra Info: {extraInfo}</Typography>
+        <Typography>Special Instructions: {specialInstructions}</Typography>
         <Divider sx={{ my: 2 }} />
-
-        <Typography variant="h6" color="primary" gutterBottom>
-          Items:
-        </Typography>
-        <TableContainer component={Paper} sx={{ maxWidth: "100%", overflowX: "auto" }}>
+        <Typography variant="h6">Items:</Typography>
+        <TableContainer component={Paper}>
           <Table>
             <TableHead>
               <TableRow>
-                <TableCell><strong>Item Name</strong></TableCell>
-                <TableCell><strong>Category</strong></TableCell>
-                <TableCell><strong>Quantity</strong></TableCell>
-                <TableCell><strong>Price (₹)</strong></TableCell>
+                <TableCell>Item Name</TableCell>
+                <TableCell>Category</TableCell>
+                <TableCell>Quantity</TableCell>
+                <TableCell>Price (₹)</TableCell>
               </TableRow>
             </TableHead>
             <TableBody>
@@ -291,42 +201,16 @@ const OrderComponent = ({ order, index, setOrderCompletion }: OrderProps) => {
             </TableBody>
           </Table>
         </TableContainer>
-
         <Divider sx={{ my: 2 }} />
-
-        <Box sx={{ marginTop: "16px" }}>
-          <Typography variant="body1" color="text.secondary" fontWeight="bold">
-            Total Price: ₹{totalPrice}
-          </Typography>
-          <Typography variant="body2" color="text.secondary">
-            Ordered At: {formatDate(orderedAt)}
-          </Typography>
-        </Box>
-        <Box sx={{ marginTop: "16px", display: "flex", gap: "10px", justifyContent: "center" }}>
-          {orderStatus === "pending" && (
-            <>
-              <Button variant="contained" color="warning" onClick={handleDelay}>
-                Delay by 5 mins
-              </Button>
-              <Button
-                variant="contained"
-                color="success"
-                onClick={() => handleMarkCompleted(orderId)}
-              >
-                Mark as Completed
-              </Button>
-            </>
-          )}
-        </Box>
-
-        <Box sx={{ marginTop: "20px" }}>
-          <Typography variant="body2" color="text.secondary" fontWeight="bold">
-            Time Remaining: {formatTimeRemaining(completionTime)}
-          </Typography>
-          <LinearProgress variant="determinate" value={progress} sx={{ marginTop: "8px" }} />
-        </Box>
-        <br />
-        <hr />
+        <Typography>Total Price: ₹{totalPrice}</Typography>
+        <Typography>Ordered At: {formatDate(orderedAt)}</Typography>
+        {status === "pending" && (
+          <Box sx={{ marginTop: "16px" }}>
+            <Button variant="contained" color="success" onClick={() => handleMarkCompleted(orderId)}>
+              Mark as Completed
+            </Button>
+          </Box>
+        )}
       </CardContent>
     </Card>
   );

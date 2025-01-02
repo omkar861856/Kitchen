@@ -51,7 +51,9 @@ export const createInventoryItem = createAsyncThunk(
 export const updateInventoryItem = createAsyncThunk(
     'menu/updateItem',
     async ({ itemId, updates }: { itemId: string; updates: Partial<InventoryItem> }) => {
+        console.log(itemId, updates)
         const response = await axios.put(`${apiUrl}/inventory/${itemId}`, updates);
+        console.log(response)
         return response.data.item; // Assuming `item` is returned from your API
     }
 );
