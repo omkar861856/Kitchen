@@ -6,17 +6,8 @@ import Payments from './pages/Payments';
 import SignUpLoginForm from './pages/SignUpPage';
 import LoginForm from './pages/LoginPage';
 import ProfilePage from './pages/Profile';
-import { useEffect } from 'react';
-import { useAppDispatch } from './store/hooks/hooks';
 
 const App = () => {
-  const dispatch = useAppDispatch()
-
-  useEffect(() => {
-    console.log("successfully local store reset")
-    dispatch({ type: 'RESET_STORE' });
-  }, []); 
-
   return (
     <Routes>
       <Route
