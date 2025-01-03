@@ -19,6 +19,7 @@ export interface AuthState {
     isKitchen: boolean | null;
     kitchenName: string | null;
     kitchenId: string;
+    kitchenStatus: boolean;
 }
 
 const initialState: AuthState = {
@@ -31,7 +32,8 @@ const initialState: AuthState = {
     otpExpiresAt: null,
     isKitchen: null,
     kitchenName: null,
-    kitchenId:  "empty",
+    kitchenId: "empty",
+    kitchenStatus: false
 };
 
 // Thunk to handle user signup
@@ -98,6 +100,37 @@ export const getIsLoggedInStatus = createAsyncThunk(
     }
 );
 
+
+export const fetchKitchenStatus = createAsyncThunk(
+    'kitchen/fetchKitchenStatus',
+    async (_, { getState, rejectWithValue }) => {
+        const state = getState() as { auth: AuthState };
+        const kitchenId = state.auth.kitchenId;
+        try {
+            const response = await axios.get(`${apiUrl}/auth/kitchen-status/${kitchenId}`);
+            return response.data.status; // Adjust based on your API's response structure
+        } catch (error: any) {
+            return rejectWithValue(error.response?.data || 'Failed to fetch kitchen status');
+        }
+    }
+);
+
+// Thunk to update the kitchen status
+export const updateKitchenStatus = createAsyncThunk(
+    'auth/updateKitchenStatus',
+    async (status: boolean, { getState, rejectWithValue }) => {
+        const state = getState() as { auth: AuthState };
+        const kitchenId = state.auth.kitchenId;
+        try {
+            const response = await axios.post(`${apiUrl}/auth/update-kitchen-status`, { kitchenId, status });
+            return response.data.status;
+        } catch (error: any) {
+            return rejectWithValue(error.response.data || 'Failed to update kitchen status');
+        }
+    }
+);
+
+
 const authSlice = createSlice({
     name: 'auth',
     initialState,
@@ -117,8 +150,9 @@ const authSlice = createSlice({
             state,
             action: PayloadAction<{
                 isKitchen: boolean | null;
-                kitchenName: string | null; firstName: string;token: string; lastName: string; phone: string; otp: string; otpExpiresAt: string; isLoggedIn: boolean; kitchenId: string;
-}>
+                kitchenStatus: boolean;
+                kitchenName: string | null; firstName: string; token: string; lastName: string; phone: string; otp: string; otpExpiresAt: string; isLoggedIn: boolean; kitchenId: string;
+            }>
         ) => {
             state.firstName = action.payload.firstName;
             state.lastName = action.payload.lastName;
@@ -127,9 +161,10 @@ const authSlice = createSlice({
             state.otpExpiresAt = action.payload.otpExpiresAt;
             state.token = action.payload.token;
             state.isLoggedIn = action.payload.isLoggedIn;
-            state.isKitchen= action.payload.isKitchen;
+            state.isKitchen = action.payload.isKitchen;
             state.kitchenName = action.payload.kitchenName;
             state.kitchenId = action.payload.kitchenId
+            state.kitchenStatus = action.payload.kitchenStatus
         },
     },
     extraReducers: (builder) => {
@@ -193,7 +228,22 @@ const authSlice = createSlice({
             })
             .addCase(logoutUser.rejected, (_state, action) => {
                 console.error(action.payload || 'Error during logout');
-            });
+            })
+            .addCase(updateKitchenStatus.pending, () => {
+
+            })
+            .addCase(updateKitchenStatus.fulfilled, (state, action) => {
+                state.kitchenStatus = action.payload; // Assuming response contains the updated status
+            })
+            .addCase(updateKitchenStatus.rejected, () => {
+            })
+            .addCase(fetchKitchenStatus.pending, () => {
+            })
+            .addCase(fetchKitchenStatus.fulfilled, (state, action) => {
+                state.kitchenStatus = action.payload; // Assuming response contains the updated status
+            })
+            .addCase(fetchKitchenStatus.rejected, () => {
+            })
     },
 });
 

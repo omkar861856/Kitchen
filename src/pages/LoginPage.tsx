@@ -103,7 +103,8 @@ const LoginForm = () => {
                 isLoggedIn: true,
                 isKitchen: null,
                 kitchenName: null,
-                kitchenId: res.data.kitchenId
+                kitchenId: res.data.kitchenId,
+                kitchenStatus: res.data.kitchenStatus
             }));
             navigate('/');
             toast.success('Login successful!');

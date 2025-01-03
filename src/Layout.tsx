@@ -29,7 +29,8 @@ import "react-toastify/dist/ReactToastify.css";
 import PhonelinkRingIcon from '@mui/icons-material/PhonelinkRing';
 import AccountBoxIcon from '@mui/icons-material/AccountBox';
 import PhonelinkEraseIcon from '@mui/icons-material/PhonelinkErase';
-import { fetchKitchenStatus, setWebWorkerDetails, updateKitchenStatus } from "./store/slices/appSlice";
+import { setWebWorkerDetails } from "./store/slices/appSlice";
+import { fetchKitchenStatus, updateKitchenStatus } from "./store/slices/authSlice";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import GoogleTranslate from "./components/GoogleTranslate";
@@ -367,7 +368,7 @@ const PhoneIcon = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const dispatch = useAppDispatch();
-  const { kitchenStatus } = useAppSelector(state => state.app)
+  const { kitchenStatus } = useAppSelector(state => state.auth)
 
   // const notifications = [
   //   "New order received!",

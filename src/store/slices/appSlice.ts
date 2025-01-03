@@ -1,7 +1,6 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { apiUrl } from '../../Layout';
-import { AuthState } from './authSlice';
 
 interface AppState {
 
@@ -38,34 +37,6 @@ export const connectKitchen = createAsyncThunk(
   }
 );
 
-export const fetchKitchenStatus = createAsyncThunk(
-  'kitchen/fetchKitchenStatus',
-  async (_, { getState, rejectWithValue }) => {
-    const state = getState() as { auth: AuthState }; 
-    const kitchenId = state.auth.kitchenId; 
-    try {
-      const response = await axios.get(`${apiUrl}/auth/kitchen-status/${kitchenId}`);
-      return response.data.status; // Adjust based on your API's response structure
-    } catch (error: any) {
-      return rejectWithValue(error.response?.data || 'Failed to fetch kitchen status');
-    }
-  }
-);
-
-// Thunk to update the kitchen status
-export const updateKitchenStatus = createAsyncThunk(
-  'app/updateKitchenStatus',
-  async (status: boolean, { getState,rejectWithValue }) => {
-    const state = getState() as { auth: AuthState }; 
-    const kitchenId = state.auth.kitchenId; 
-    try {
-      const response = await axios.post(`${apiUrl}/auth/update-kitchen-status`, { kitchenId, status });
-      return response.data.status;
-    } catch (error: any) {
-      return rejectWithValue(error.response.data || 'Failed to update kitchen status');
-    }
-  }
-);
 
 // Create the slice
 const feedbackSlice = createSlice({
@@ -92,30 +63,6 @@ const feedbackSlice = createSlice({
         state.status = 'succeeded';
       })
       .addCase(connectKitchen.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.payload as string;
-      })
-      .addCase(updateKitchenStatus.pending, (state) => {
-        state.status = 'loading';
-        state.error = null;
-      })
-      .addCase(updateKitchenStatus.fulfilled, (state, action) => {
-        state.status = 'succeeded';
-        state.kitchenStatus = action.payload; // Assuming response contains the updated status
-      })
-      .addCase(updateKitchenStatus.rejected, (state, action) => {
-        state.status = 'failed';
-        state.error = action.payload as string;
-      })
-      .addCase(fetchKitchenStatus.pending, (state) => {
-        state.status = 'loading';
-        state.error = null;
-      })
-      .addCase(fetchKitchenStatus.fulfilled, (state, action) => {
-        state.status = 'succeeded';
-        state.kitchenStatus = action.payload; // Assuming response contains the updated status
-      })
-      .addCase(fetchKitchenStatus.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload as string;
       })

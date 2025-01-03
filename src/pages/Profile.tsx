@@ -6,7 +6,7 @@ import { useNavigate } from "react-router-dom";
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { logoutUser } from "../store/slices/authSlice";
-import { updateKitchenStatus } from "../store/slices/appSlice";
+import { updateKitchenStatus } from "../store/slices/authSlice";
 import QRCodeGenerator from "../components/QRGenerator";
 import { socket } from "../Layout";
 
