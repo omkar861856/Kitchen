@@ -7,7 +7,7 @@ import SignUpLoginForm from './pages/SignUpPage';
 import LoginForm from './pages/LoginPage';
 import ProfilePage from './pages/Profile';
 import { useEffect } from 'react';
-import { useAppDispatch, useAppSelector } from './store/hooks/hooks';
+import { useAppDispatch } from './store/hooks/hooks';
 
 const App = () => {
   const dispatch = useAppDispatch()
