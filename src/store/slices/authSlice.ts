@@ -106,6 +106,7 @@ export const fetchKitchenStatus = createAsyncThunk(
     async (_, { getState, rejectWithValue }) => {
         const state = getState() as { auth: AuthState };
         const kitchenId = state.auth.kitchenId;
+        console.log(kitchenId)
         try {
             const response = await axios.get(`${apiUrl}/auth/kitchen-status/${kitchenId}`);
             return response.data.status; // Adjust based on your API's response structure

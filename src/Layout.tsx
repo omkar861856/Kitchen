@@ -86,8 +86,6 @@ export default function Layout({ children }: LayoutProps) {
   const {pendingOrders} = useAppSelector(state=>state.orders)
   const [ordersInvisible, setOrdersInvisible] = useState(false)
 
-  console.log(pendingOrders)
-
   useEffect(()=>{
     if(pendingOrders.length!==0){
       setOrdersInvisible(false)
