@@ -136,15 +136,6 @@ export default function Layout({ children }: LayoutProps) {
       ref.current.ownerDocument.body.scrollTop = 0;
     }
 
-    // Request notification permission
-    if (Notification.permission !== "denied") {
-      Notification.requestPermission().then((permission) => {
-        if (permission === "granted") {
-          console.log("Notification permission granted");
-        }
-      });
-    }
-
     socketInstance.on("orderCreated", (order) => {
       console.log(order)
       playNotificationSound(audioUrl)
