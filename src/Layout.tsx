@@ -115,20 +115,6 @@ export default function Layout({ children }: LayoutProps) {
     }
   }, [location.pathname]);
 
-  useEffect(() => {
-    // Request permission if not already granted
-    if (Notification.permission === "default") {
-      Notification.requestPermission();
-    }
-
-    if (Notification.permission === "granted") {
-      new Notification("example notification", {
-        body: "Welcome to this app",
-      });
-    } else if (Notification.permission === "denied") {
-      console.warn("Notifications are blocked by the user.");
-    }
-  }, [location.pathname]);
 
   useEffect(() => {
 
