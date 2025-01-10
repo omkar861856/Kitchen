@@ -65,7 +65,7 @@ const ProfilePage: React.FC = () => {
           <strong>Kitchen Id:</strong> {kitchenId}
         </Typography>
         <QRCodeGenerator />
-        <a target="_blank" href={`https://canteen-mauve.vercel.app/${kitchenId}`}>`https://canteen-mauve.vercel.app/{kitchenId}`</a>
+        <a target="_blank" href={`https://canteen-mauve.vercel.app/${kitchenId}/signin`}>`https://canteen-mauve.vercel.app/{kitchenId}/signin`</a>
         <Button
           variant="contained"
           color="primary"
