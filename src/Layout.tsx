@@ -87,13 +87,16 @@ export default function Layout({ children }: LayoutProps) {
   const notifications = useAppSelector(state => state.notifications)
 
   useEffect(() => {
-    // Check if there are notifications for each type
-    const hasOrderNotifications = notifications.some((notification) => notification.type === 'order');
+    // Ensure notifications is an array
+    const validNotifications = Array.isArray(notifications) ? notifications : [];
+
+    // Use filter to check if there are any notifications of type 'order'
+    const hasOrderNotifications = validNotifications.filter(notification => notification.type === 'order').length > 0;
 
     // Update visibility state based on the presence of notifications
     setOrdersInvisible(!hasOrderNotifications);
 
-  }, [notifications]);
+}, [notifications]);
 
   useEffect(() => {
     // Use a switch statement to set the value based on the path
