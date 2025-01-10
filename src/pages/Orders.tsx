@@ -32,7 +32,7 @@ const Orders = () => {
   const [sortDirection, setSortDirection] = useState("asc");
   const [selectedUserName, setSelectedUserName] = useState("");
   const dispatch = useAppDispatch();
-  const { notifications } = useAppSelector((state) => state.notifications);
+  const  notifications  = useAppSelector((state) => state.notifications);
   const [orderCompletion, setOrderCompletion] = useState(0);
 
   useEffect(() => {
