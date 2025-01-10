@@ -83,16 +83,17 @@ export default function Layout({ children }: LayoutProps) {
   const [socketConnection, setSocketConnection] = useState(false)
   const location = useLocation();
   const { isLoggedIn } = useAppSelector(state => state.auth)
-  const {pendingOrders} = useAppSelector(state=>state.orders)
   const [ordersInvisible, setOrdersInvisible] = useState(false)
+  const notifications = useAppSelector(state => state.notifications)
 
-  useEffect(()=>{
-    if(pendingOrders.length!==0){
-      setOrdersInvisible(false)
-    }else{
-      setOrdersInvisible(true)
-    }
-  },[pendingOrders])
+  useEffect(() => {
+    // Check if there are notifications for each type
+    const hasOrderNotifications = notifications.some((notification) => notification.type === 'order');
+
+    // Update visibility state based on the presence of notifications
+    setOrdersInvisible(!hasOrderNotifications);
+
+  }, [notifications]);
 
   useEffect(() => {
     // Use a switch statement to set the value based on the path
@@ -217,50 +218,57 @@ export default function Layout({ children }: LayoutProps) {
       <div id="layout-children" style={{ overflowX: "hidden" }}>
         {children}
       </div>
-      <Paper
-        sx={{
-          position: "fixed",
-          bottom: 0,
-          left: 0,
-          right: 0,
-        }}
-        elevation={3}
-      >
-        <BottomNavigation
-          showLabels
-          value={value}
-          onChange={(_, newValue: number) => {
-            setValue(newValue);
-          }}
-          sx={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr 1fr 1fr",
-            placeItems: "center"
-          }}
-        >
-          <BottomNavigationAction
-            onClick={() => navigate("/")}
-            label="Orders"
-            icon={
-              <Badge color="primary" variant="dot" invisible={ordersInvisible}>
-            <RestaurantIcon />
-            </Badge>
-            }
-          />
-          <BottomNavigationAction
-            onClick={() => navigate("/menu")}
-            label="Menu"
-            icon={<MenuBookIcon />}
-          />
-          <BottomNavigationAction
-            onClick={() => navigate("/payments")}
-            label="Payments"
-            icon={<CurrencyRupeeIcon />}
-          />
-          <BottomNavigationAction onClick={() => navigate("/profile")} label="Profile" icon={
-            <AccountBoxIcon color={isLoggedIn ? "success" : undefined} />} />
-        </BottomNavigation>
-      </Paper>
+
+      {
+        isLoggedIn
+          ?
+          <Paper
+            sx={{
+              position: "fixed",
+              bottom: 0,
+              left: 0,
+              right: 0,
+            }}
+            elevation={3}
+          >
+            <BottomNavigation
+              showLabels
+              value={value}
+              onChange={(_, newValue: number) => {
+                setValue(newValue);
+              }}
+              sx={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr 1fr 1fr",
+                placeItems: "center"
+              }}
+            >
+              <BottomNavigationAction
+                onClick={() => navigate("/")}
+                label="Orders"
+                icon={
+                  <Badge color="primary" variant="dot" invisible={ordersInvisible}>
+                    <RestaurantIcon />
+                  </Badge>
+                }
+              />
+              <BottomNavigationAction
+                onClick={() => navigate("/menu")}
+                label="Menu"
+                icon={<MenuBookIcon />}
+              />
+              <BottomNavigationAction
+                onClick={() => navigate("/payments")}
+                label="Payments"
+                icon={<CurrencyRupeeIcon />}
+              />
+              <BottomNavigationAction onClick={() => navigate("/profile")} label="Profile" icon={
+                <AccountBoxIcon color={isLoggedIn ? "success" : undefined} />} />
+            </BottomNavigation>
+          </Paper>
+          :
+          null
+      }
     </Box>
   );
 }
@@ -270,7 +278,7 @@ const NotificationIconWithMenu = () => {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const notificationss = useAppSelector(state => state.notifications)
-  const notifications = notificationss.notifications
+  const notifications = notificationss
   const dispatch = useAppDispatch();
 
   // const notifications = [
@@ -367,8 +375,8 @@ const PhoneIcon = () => {
   };
 
   return (
-    <>      
-    <ToastContainer />
+    <>
+      <ToastContainer />
 
       <Box sx={{ display: "flex", alignItems: "center", padding: 2 }}>
         <IconButton onClick={handleClick} color="primary">

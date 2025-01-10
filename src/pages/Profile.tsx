@@ -9,7 +9,6 @@ import { logoutUser } from "../store/slices/authSlice";
 import { updateKitchenStatus } from "../store/slices/authSlice";
 import QRCodeGenerator from "../components/QRGenerator";
 import { socket } from "../Layout";
-import { clearLocalStorage } from "../store/slices/authSlice";
 
 const ProfilePage: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -26,7 +25,6 @@ const ProfilePage: React.FC = () => {
   const handleLogout = async () => {
     await dispatch(updateKitchenStatus(false))
     await dispatch(logoutUser(phone));
-    dispatch(clearLocalStorage())
     handleResetStore()
     socket.emit('kitchenStatus',false)
     toast.success('Logoutsuccessful!');
