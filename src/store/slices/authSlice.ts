@@ -167,6 +167,17 @@ const authSlice = createSlice({
             state.kitchenId = action.payload.kitchenId
             state.kitchenStatus = action.payload.kitchenStatus
         },
+        clearLocalStorage: (state) => {
+            localStorage.clear(); // Clear all items in local storage
+            // Reset the Redux state to initial values
+            state.firstName = initialState.firstName;
+            state.lastName = initialState.lastName;
+            state.phone = initialState.phone;
+            state.token = initialState.token;
+            state.isLoggedIn = initialState.isLoggedIn;
+            state.otp = initialState.otp;
+            state.otpExpiresAt = initialState.otpExpiresAt;
+        },
     },
     extraReducers: (builder) => {
         builder
@@ -248,5 +259,5 @@ const authSlice = createSlice({
     },
 });
 
-export const { logout, setToken, login } = authSlice.actions;
+export const { logout, setToken, login, clearLocalStorage } = authSlice.actions;
 export default authSlice.reducer;
