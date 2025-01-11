@@ -58,7 +58,7 @@ function QRCodeGenerator() {
                 {kitchenId && (
                     <div ref={qrCodeRef}>
                         <QRCode
-                            value={`https://canteen-mauve.vercel.app/${kitchenId}`}
+                            value={`https://canteen-mauve.vercel.app/${kitchenId}/signin`}
                             bgColor="#FFFFFF"
                             fgColor="#000000"
                         />
